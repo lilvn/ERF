@@ -141,6 +141,7 @@ export const Logo = ({ onClick, scale = 1, shouldSpin, spinDirection }: {
   );
 };
 
-
+// Preload the 3D model
+useGLTF.preload('/Menu/Logo_MenuBtn.glb');
 
 

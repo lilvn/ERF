@@ -4,6 +4,7 @@ import { AnaglyphProvider } from "@/context/AnaglyphContext";
 import { Menu } from "@/components/Menu";
 import { DevControls } from "@/components/DevControls";
 import { SVGFilters } from "@/components/SVGFilters";
+import { Preloader } from "@/components/Preloader";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -21,12 +22,14 @@ export default function RootLayout({
       <body className="antialiased">
         <ThemeProvider>
           <AnaglyphProvider>
-            <SVGFilters />
-            <Menu />
-            <main id="main-content" className="relative min-h-screen">
-              {children}
-            </main>
-            <DevControls />
+            <Preloader>
+              <SVGFilters />
+              <Menu />
+              <main id="main-content" className="relative min-h-screen">
+                {children}
+              </main>
+              <DevControls />
+            </Preloader>
           </AnaglyphProvider>
         </ThemeProvider>
       </body>

@@ -55,7 +55,8 @@ const MenuItem = ({ item, index, total, onClose }: {
             alt={item.name}
             fill
             className="object-contain"
-            unoptimized 
+            unoptimized
+            priority
           />
         </div>
       </Link>
