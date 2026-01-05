@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import QRCode from 'qrcode.react';
+import { QRCodeCanvas } from 'qrcode.react';
 import { generateQRToken } from '@/lib/qrToken';
 
 interface MemberQRCodeProps {
@@ -68,7 +68,7 @@ export function MemberQRCode({ customerId, customerName }: MemberQRCodeProps) {
   return (
     <div className="flex flex-col items-center gap-4">
       <div className="p-4 bg-white rounded-lg shadow-lg border-2 border-gray-200">
-        <QRCode value={qrValue} size={256} level="H" />
+        <QRCodeCanvas value={qrValue} size={256} level="H" />
       </div>
       
       <div className="text-center">
