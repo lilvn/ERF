@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { AnaglyphProvider } from "@/context/AnaglyphContext";
+import { AuthProvider } from "@/context/AuthContext";
 import { Menu } from "@/components/Menu";
 import { DevControls } from "@/components/DevControls";
 import { SVGFilters } from "@/components/SVGFilters";
@@ -22,14 +23,16 @@ export default function RootLayout({
       <body className="antialiased">
         <ThemeProvider>
           <AnaglyphProvider>
-            <Preloader>
-              <SVGFilters />
-              <Menu />
-              <main id="main-content" className="relative min-h-screen">
-                {children}
-              </main>
-              <DevControls />
-            </Preloader>
+            <AuthProvider>
+              <Preloader>
+                <SVGFilters />
+                <Menu />
+                <main id="main-content" className="relative min-h-screen">
+                  {children}
+                </main>
+                <DevControls />
+              </Preloader>
+            </AuthProvider>
           </AnaglyphProvider>
         </ThemeProvider>
       </body>
