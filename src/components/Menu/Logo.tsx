@@ -42,10 +42,11 @@ export const Logo = ({ onClick, scale = 1, shouldSpin, spinDirection }: {
           if (mesh.material) {
             const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
             materials.forEach((mat) => {
-              if ('map' in mat && mat.map) {
-                mat.map.magFilter = bitmapEnabled ? THREE.NearestFilter : THREE.LinearFilter;
-                mat.map.minFilter = bitmapEnabled ? THREE.NearestFilter : THREE.LinearMipmapLinearFilter;
-                mat.map.needsUpdate = true;
+              const material = mat as THREE.MeshStandardMaterial;
+              if (material.map) {
+                material.map.magFilter = bitmapEnabled ? THREE.NearestFilter : THREE.LinearFilter;
+                material.map.minFilter = bitmapEnabled ? THREE.NearestFilter : THREE.LinearMipmapLinearFilter;
+                material.map.needsUpdate = true;
               }
             });
           }
