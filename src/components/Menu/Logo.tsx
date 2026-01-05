@@ -42,7 +42,7 @@ export const Logo = ({ onClick, scale = 1, shouldSpin, spinDirection }: {
           if (mesh.material) {
             const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
             materials.forEach((mat) => {
-              if (mat.map) {
+              if ('map' in mat && mat.map) {
                 mat.map.magFilter = bitmapEnabled ? THREE.NearestFilter : THREE.LinearFilter;
                 mat.map.minFilter = bitmapEnabled ? THREE.NearestFilter : THREE.LinearMipmapLinearFilter;
                 mat.map.needsUpdate = true;
