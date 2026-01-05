@@ -9,9 +9,6 @@ export const DevControls = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { activeFilter, setActiveFilter } = useAnaglyph();
   const panelRef = useRef<HTMLDivElement>(null);
-  
-  // Only show in development
-  const isDev = process.env.NODE_ENV === 'development';
 
   // Close when clicking outside
   useEffect(() => {
@@ -26,8 +23,6 @@ export const DevControls = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isOpen]);
-
-  if (!isDev) return null;
 
   const handleToggle = () => {
     setIsOpen(!isOpen);
