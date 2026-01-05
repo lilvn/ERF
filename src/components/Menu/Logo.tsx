@@ -3,6 +3,7 @@
 import React, { useRef, useEffect, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
+import { useAnaglyph } from '@/context/AnaglyphContext';
 import * as THREE from 'three';
 import gsap from 'gsap';
 
@@ -15,6 +16,7 @@ export const Logo = ({ onClick, scale = 1, shouldSpin, spinDirection }: {
 }) => {
   const groupRef = useRef<THREE.Group>(null);
   const { scene } = useGLTF('/Menu/Logo_MenuBtn.glb');
+  const { bitmapEnabled } = useAnaglyph();
   const isSpinning = useRef(false);
   const lastSpin = useRef(0);
   const baseRotationY = useRef(0);
@@ -30,6 +32,27 @@ export const Logo = ({ onClick, scale = 1, shouldSpin, spinDirection }: {
     box.getCenter(center);
     return { size, center };
   }, [scene]);
+
+  // Apply pixelated texture filtering when bitmap is enabled
+  useEffect(() => {
+    if (scene) {
+      scene.traverse((child) => {
+        if ((child as THREE.Mesh).isMesh) {
+          const mesh = child as THREE.Mesh;
+          if (mesh.material) {
+            const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+            materials.forEach((mat) => {
+              if (mat.map) {
+                mat.map.magFilter = bitmapEnabled ? THREE.NearestFilter : THREE.LinearFilter;
+                mat.map.minFilter = bitmapEnabled ? THREE.NearestFilter : THREE.LinearMipmapLinearFilter;
+                mat.map.needsUpdate = true;
+              }
+            });
+          }
+        }
+      });
+    }
+  }, [scene, bitmapEnabled]);
   
   // Mouse tracking with global mouse coordinates
   const mouse = useRef({ x: 0, y: 0 });

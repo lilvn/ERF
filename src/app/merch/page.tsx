@@ -3,6 +3,7 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { WebPLayeredRenderer } from '@/components/Merch/WebPLayeredRenderer';
 import { WedgieScroll } from '@/components/Merch/WedgieScroll';
+import { useAnaglyph } from '@/context/AnaglyphContext';
 import Image from 'next/image';
 
 export default function MerchPage() {
@@ -13,6 +14,7 @@ export default function MerchPage() {
   const [animationKey, setAnimationKey] = useState(0);
   const [isMobile, setIsMobile] = useState<boolean | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const { getCombinedStyle } = useAnaglyph();
 
   // Detect mobile vs desktop
   useEffect(() => {
@@ -49,7 +51,8 @@ export default function MerchPage() {
       className="relative cursor-ns-resize flex-shrink-0"
       style={{ 
         width: isMobile ? 'min(70vw, 320px)' : 'min(35vw, 500px)', 
-        height: isMobile ? 'min(90vw, 420px)' : 'min(50vw, 700px)'
+        height: isMobile ? 'min(90vw, 420px)' : 'min(50vw, 700px)',
+        ...getCombinedStyle('middleground')
       }}
     >
       <WebPLayeredRenderer 
@@ -83,7 +86,7 @@ export default function MerchPage() {
         <div className="flex flex-col h-full">
           {/* Header */}
           <header className="flex-shrink-0 pt-4 pb-2">
-            <h1 className="text-2xl font-bold text-center tracking-wide">ERF MERCH</h1>
+            <h1 className="text-2xl font-bold text-center tracking-wide">MERCH</h1>
           </header>
 
           {/* Character Viewer with Size Selector */}
@@ -119,13 +122,15 @@ export default function MerchPage() {
                   ? 'opacity-100' 
                   : 'opacity-40 grayscale'
               }`}
+              style={getCombinedStyle(product === 'Hoodie' ? 'foreground' : 'background')}
             >
               <div className="w-20 h-20 relative">
                 <Image 
                   src="/Merch/Product Selector/Hoodie.png" 
                   alt="Hoodie" 
                   fill 
-                  className="object-contain" 
+                  className="object-contain"
+                  unoptimized
                 />
               </div>
               <p className={`mt-1 text-xs text-center ${
@@ -144,13 +149,15 @@ export default function MerchPage() {
                   ? 'opacity-100' 
                   : 'opacity-40 grayscale'
               }`}
+              style={getCombinedStyle(product === 'Tee' ? 'foreground' : 'background')}
             >
               <div className="w-20 h-20 relative">
                 <Image 
                   src="/Merch/Product Selector/Tshirt.png" 
                   alt="Tee" 
                   fill 
-                  className="object-contain" 
+                  className="object-contain"
+                  unoptimized
                 />
               </div>
               <p className={`mt-1 text-xs text-center ${
@@ -171,8 +178,8 @@ export default function MerchPage() {
   return (
     <div className="h-screen overflow-hidden bg-white text-black animate-fade-in">
       {/* Title at top center */}
-      <header className="absolute top-0 left-0 right-0 pt-6 z-10">
-        <h1 className="text-3xl lg:text-4xl font-bold text-center">ERF MERCH</h1>
+      <header className="absolute top-0 left-0 right-0 pt-20 z-10">
+        <h1 className="text-3xl lg:text-4xl font-bold text-center">MERCH</h1>
       </header>
 
       <div className="flex h-full pt-16">
@@ -192,12 +199,19 @@ export default function MerchPage() {
                   ? 'opacity-100' 
                   : 'opacity-40 grayscale hover:opacity-60'
               }`}
+              style={getCombinedStyle(product === 'Hoodie' ? 'foreground' : 'background')}
             >
               <div 
                 className="relative"
                 style={{ width: 'min(15vw, 180px)', height: 'min(15vw, 180px)' }}
               >
-                <Image src="/Merch/Product Selector/Hoodie.png" alt="Hoodie" fill className="object-contain" />
+                <Image 
+                  src="/Merch/Product Selector/Hoodie.png" 
+                  alt="Hoodie" 
+                  fill 
+                  className="object-contain"
+                  unoptimized
+                />
               </div>
               <p className={`mt-2 text-center text-sm lg:text-base ${
                 product === 'Hoodie' 
@@ -212,12 +226,19 @@ export default function MerchPage() {
                   ? 'opacity-100' 
                   : 'opacity-40 grayscale hover:opacity-60'
               }`}
+              style={getCombinedStyle(product === 'Tee' ? 'foreground' : 'background')}
             >
               <div 
                 className="relative"
                 style={{ width: 'min(15vw, 180px)', height: 'min(15vw, 180px)' }}
               >
-                <Image src="/Merch/Product Selector/Tshirt.png" alt="Tee" fill className="object-contain" />
+                <Image 
+                  src="/Merch/Product Selector/Tshirt.png" 
+                  alt="Tee" 
+                  fill 
+                  className="object-contain"
+                  unoptimized
+                />
               </div>
               <p className={`mt-2 text-center text-sm lg:text-base ${
                 product === 'Tee' 

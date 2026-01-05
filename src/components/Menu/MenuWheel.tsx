@@ -4,6 +4,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useAnaglyph } from '@/context/AnaglyphContext';
 
 const MENU_ITEMS = [
   { name: 'MERCH', path: '/merch', icon: '/Menu/MenuWheel/MERCH.webp' },
@@ -22,6 +23,7 @@ const MenuItem = ({ item, index, total, onClose }: {
   total: number;
   onClose: (path?: string) => void;
 }) => {
+  const { getCombinedStyle } = useAnaglyph();
   const angle = (index / total) * Math.PI * 2;
   const radius = 280;
   const x = Math.cos(angle) * radius;
@@ -41,7 +43,8 @@ const MenuItem = ({ item, index, total, onClose }: {
         left: '50%',
         top: '50%',
         marginLeft: x - 80,
-        marginTop: y - 80
+        marginTop: y - 80,
+        ...getCombinedStyle('foreground'),
       }}
       className="pointer-events-auto"
     >

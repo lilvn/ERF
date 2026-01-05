@@ -11,8 +11,12 @@ export default function GalleriesPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-white text-black flex flex-col items-center justify-center p-20">
-      <h1 className="text-6xl font-bold mb-20">GALLERIES</h1>
+    <div className="min-h-screen bg-white text-black p-20">
+      <header className="absolute top-0 left-0 right-0 pt-20 z-10">
+        <h1 className="text-3xl lg:text-4xl font-bold text-center">GALLERIES</h1>
+      </header>
+      
+      <div className="flex flex-col items-center justify-center min-h-screen">
       
       <div className="flex space-x-20">
         {galleries.map((gallery) => (
@@ -35,6 +39,7 @@ export default function GalleriesPage() {
             )}
           </div>
         ))}
+      </div>
       </div>
     </div>
   );

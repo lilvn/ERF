@@ -7,6 +7,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Logo } from './Logo';
 import { MenuWheel } from './MenuWheel';
+import { useAnaglyph } from '@/context/AnaglyphContext';
 import gsap from 'gsap';
 
 export const Menu = () => {
@@ -19,6 +20,7 @@ export const Menu = () => {
   const router = useRouter();
   const isHome = pathname === '/';
   const isInitialMount = useRef(true);
+  const { getCombinedStyle } = useAnaglyph();
 
   // Blur background and reduce opacity when menu is expanded
   useEffect(() => {
@@ -156,7 +158,8 @@ export const Menu = () => {
         style={{ 
           zIndex: 200,
           marginLeft: '-250px',
-          marginTop: '-250px'
+          marginTop: '-250px',
+          ...getCombinedStyle(isExpanded ? 'background' : 'foreground'),
         }}
       >
         {/* Canvas renders full size but pointer-events are disabled */}

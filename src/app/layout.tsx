@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "@/context/ThemeContext";
+import { AnaglyphProvider } from "@/context/AnaglyphContext";
 import { Menu } from "@/components/Menu";
+import { DevControls } from "@/components/DevControls";
+import { SVGFilters } from "@/components/SVGFilters";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -17,10 +20,14 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased">
         <ThemeProvider>
-          <Menu />
-          <main id="main-content" className="relative min-h-screen">
-            {children}
-          </main>
+          <AnaglyphProvider>
+            <SVGFilters />
+            <Menu />
+            <main id="main-content" className="relative min-h-screen">
+              {children}
+            </main>
+            <DevControls />
+          </AnaglyphProvider>
         </ThemeProvider>
       </body>
     </html>
