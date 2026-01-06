@@ -128,6 +128,7 @@ export async function getCustomerData(accessToken: string) {
               id
               number
               financialStatus
+              processedAt
               lineItems(first: 10) {
                 edges {
                   node {

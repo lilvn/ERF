@@ -38,13 +38,12 @@ export async function GET(request: NextRequest) {
     );
 
     if (ceramicsOrder) {
-      // Get the order creation date (purchase date)
-      // For Customer Account API, we'll use current date as placeholder
-      // In production, you'd store this in customer metafields
-      const purchaseDate = new Date(); // This should come from order data or metafields
+      // Get the actual order creation date (purchase date)
+      const orderDate = ceramicsOrder.node.processedAt;
+      const purchaseDate = new Date(orderDate);
       ceramicsMembershipPurchaseDate = purchaseDate.toISOString();
       
-      // Calculate expiry date (30 days from purchase)
+      // Calculate expiry date (30 days from actual purchase date)
       const expiryDate = new Date(purchaseDate);
       expiryDate.setDate(expiryDate.getDate() + 30);
       ceramicsMembershipExpiryDate = expiryDate.toISOString();
@@ -69,7 +68,7 @@ export async function GET(request: NextRequest) {
         orderNumber: edge.node.number,
         totalPrice: '0.00',
         currency: 'USD',
-        createdAt: edge.node.processedAt || edge.node.createdAt || new Date().toISOString(),
+        createdAt: edge.node.processedAt || new Date().toISOString(),
         items: (edge.node.lineItems?.edges || []).map((item: any) => ({
           title: item.node.title || 'Unknown',
           quantity: item.node.quantity || 0,
