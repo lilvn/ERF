@@ -1,8 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { initiateLogin } from '@/lib/customerAccountApi';
-import { generatePKCE, generateState, generateNonce } from '@/lib/pkce';
+import { buildAuthUrl } from '@/lib/customerAccountApi';
 
 export function OTPLogin() {
   const [isLoading, setIsLoading] = useState(false);
@@ -11,18 +10,20 @@ export function OTPLogin() {
     setIsLoading(true);
     
     try {
-      // Generate PKCE values
-      const { codeVerifier, codeChallenge } = await generatePKCE();
-      const state = generateState();
-      const nonce = generateNonce();
+      // Build auth URL and get PKCE values
+      const { authUrl, codeVerifier, state, nonce } = await buildAuthUrl();
 
-      // Store in cookies for the callback (since they survive redirects)
-      document.cookie = `pkce_code_verifier=${codeVerifier}; path=/; max-age=600; SameSite=Lax`;
-      document.cookie = `oauth_state=${state}; path=/; max-age=600; SameSite=Lax`;
-      document.cookie = `oauth_nonce=${nonce}; path=/; max-age=600; SameSite=Lax`;
+      // Store PKCE values in cookies (they survive redirects)
+      // Set secure flag in production
+      const isProduction = window.location.protocol === 'https:';
+      const cookieOptions = `path=/; max-age=600; SameSite=Lax${isProduction ? '; Secure' : ''}`;
+      
+      document.cookie = `pkce_code_verifier=${codeVerifier}; ${cookieOptions}`;
+      document.cookie = `oauth_state=${state}; ${cookieOptions}`;
+      document.cookie = `oauth_nonce=${nonce}; ${cookieOptions}`;
 
-      // Initiate OAuth flow (redirects to Shopify)
-      await initiateLogin();
+      // Redirect to Shopify login
+      window.location.href = authUrl;
     } catch (error) {
       console.error('Login error:', error);
       setIsLoading(false);

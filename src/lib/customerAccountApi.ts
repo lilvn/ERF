@@ -15,20 +15,13 @@ const API_URL = `https://shopify.com/${STORE_ID}/account/customer/api/2024-01/gr
 const REDIRECT_URI = `${APP_URL}/api/auth/callback`;
 
 /**
- * Initiate OAuth login flow
- * Redirects user to Shopify login page
+ * Build OAuth authorization URL
+ * Returns URL and PKCE values that need to be stored
  */
-export async function initiateLogin() {
+export async function buildAuthUrl() {
   const { codeVerifier, codeChallenge } = await generatePKCE();
   const state = generateState();
   const nonce = generateNonce();
-
-  // Store PKCE values in sessionStorage for callback
-  if (typeof window !== 'undefined') {
-    sessionStorage.setItem('pkce_code_verifier', codeVerifier);
-    sessionStorage.setItem('oauth_state', state);
-    sessionStorage.setItem('oauth_nonce', nonce);
-  }
 
   // Build authorization URL
   const params = new URLSearchParams({
@@ -44,8 +37,12 @@ export async function initiateLogin() {
 
   const authUrl = `${AUTH_URL}?${params.toString()}`;
   
-  // Redirect to Shopify login
-  window.location.href = authUrl;
+  return {
+    authUrl,
+    codeVerifier,
+    state,
+    nonce,
+  };
 }
 
 /**
