@@ -74,31 +74,6 @@ export default function CeramicsPage() {
           <h2 className="text-4xl font-bold mb-6">Ceramics Studio Membership</h2>
         </div>
 
-        {/* Membership Status */}
-        {isAuthenticated && hasCeramicsMembership && (
-          <div className="max-w-2xl mx-auto mb-12 p-6 bg-green-50 border-2 border-green-500 rounded-lg">
-            <div className="flex items-center gap-4">
-              <svg
-                className="w-8 h-8 text-green-600 flex-shrink-0"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <div>
-                <p className="font-bold text-green-800 text-lg">You're a Member!</p>
-                <p className="text-green-700">You have active access to the ceramics studio.</p>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Membership Options */}
         <div className="max-w-4xl mx-auto">
           <h3 className="text-2xl font-bold text-center mb-8">Choose Your Membership</h3>
