@@ -117,7 +117,9 @@ export default function AccountPage() {
           <h3 className="text-xl font-bold mb-4">Purchase History</h3>
           {customer.orders.length > 0 ? (
             <div className="space-y-4">
-              {customer.orders.map((order) => (
+              {customer.orders
+                .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                .map((order) => (
                 <div
                   key={order.id}
                   className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm"
