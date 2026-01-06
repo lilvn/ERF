@@ -17,6 +17,7 @@ interface Customer {
     orderNumber: number;
     totalPrice: string;
     currency: string;
+    createdAt: string;
     items: Array<{
       title: string;
       quantity: number;

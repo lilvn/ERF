@@ -69,6 +69,7 @@ export async function GET(request: NextRequest) {
         orderNumber: edge.node.number,
         totalPrice: '0.00',
         currency: 'USD',
+        createdAt: edge.node.processedAt || edge.node.createdAt || new Date().toISOString(),
         items: (edge.node.lineItems?.edges || []).map((item: any) => ({
           title: item.node.title || 'Unknown',
           quantity: item.node.quantity || 0,

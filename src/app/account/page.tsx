@@ -125,6 +125,13 @@ export default function AccountPage() {
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <p className="font-semibold">Order #{order.orderNumber}</p>
+                      <p className="text-sm text-gray-500">
+                        {new Date(order.createdAt).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        })}
+                      </p>
                     </div>
                     <p className="font-bold text-lg">
                       ${parseFloat(order.totalPrice).toFixed(2)} {order.currency}
