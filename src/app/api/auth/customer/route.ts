@@ -27,14 +27,12 @@ export async function GET(request: NextRequest) {
     // Transform data to match our app's format
     const customerId = extractCustomerId(customer.id);
 
-    // Get customer tags from Shopify (checking for membership)
-    // Note: Customer Account API doesn't expose tags directly
-    // We'll need to check orders for membership products instead
-    const hasCeramicsMembership = customer.orders.edges.some((edge: any) =>
-      edge.node.lineItems.edges.some((item: any) =>
-        item.node.title.toLowerCase().includes('ceramics')
+    // Check orders for membership products (Customer Account API doesn't expose tags)
+    const hasCeramicsMembership = customer.orders?.edges?.some((edge: any) =>
+      edge.node.lineItems?.edges?.some((item: any) =>
+        item.node.title?.toLowerCase().includes('ceramics')
       )
-    );
+    ) || false;
 
     const response = {
       id: customer.id,
@@ -43,14 +41,14 @@ export async function GET(request: NextRequest) {
       lastName: customer.lastName || '',
       email: customer.emailAddress?.emailAddress || '',
       hasCeramicsMembership,
-      orders: customer.orders.edges.map((edge: any) => ({
+      orders: (customer.orders?.edges || []).map((edge: any) => ({
         id: edge.node.id,
         orderNumber: edge.node.number,
-        totalPrice: edge.node.totalPrice.amount,
-        currency: edge.node.totalPrice.currencyCode,
-        items: edge.node.lineItems.edges.map((item: any) => ({
-          title: item.node.title,
-          quantity: item.node.quantity,
+        totalPrice: '0.00', // Customer Account API doesn't expose total price
+        currency: 'USD',
+        items: (edge.node.lineItems?.edges || []).map((item: any) => ({
+          title: item.node.title || 'Unknown',
+          quantity: item.node.quantity || 0,
         })),
       })),
     };

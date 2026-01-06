@@ -114,7 +114,7 @@ export async function refreshAccessToken(refreshToken: string) {
  */
 export async function getCustomerData(accessToken: string) {
   const query = `
-    query getCustomer {
+    query {
       customer {
         id
         emailAddress {
@@ -127,10 +127,7 @@ export async function getCustomerData(accessToken: string) {
             node {
               id
               number
-              totalPrice {
-                amount
-                currencyCode
-              }
+              financialStatus
               lineItems(first: 10) {
                 edges {
                   node {
@@ -150,22 +147,25 @@ export async function getCustomerData(accessToken: string) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${accessToken}`,
+      'Authorization': accessToken,
     },
     body: JSON.stringify({ query }),
   });
 
   if (!response.ok) {
-    throw new Error('Failed to fetch customer data');
+    const errorText = await response.text();
+    console.error('Customer API error:', response.status, errorText);
+    throw new Error(`Failed to fetch customer data: ${response.status}`);
   }
 
-  const { data, errors } = await response.json();
+  const result = await response.json();
   
-  if (errors) {
-    throw new Error(`GraphQL errors: ${JSON.stringify(errors)}`);
+  if (result.errors) {
+    console.error('GraphQL errors:', result.errors);
+    throw new Error(`GraphQL errors: ${JSON.stringify(result.errors)}`);
   }
 
-  return data.customer;
+  return result.data?.customer || null;
 }
 
 /**
