@@ -124,13 +124,38 @@ export default function CeramicsPage() {
 
                   <p className="text-gray-700 mb-8">30 Day Pass for ceramics studio access and services.</p>
 
-                  <button
-                    onClick={() => handlePurchase(products[0].variantId)}
-                    disabled={purchasingId === products[0].variantId}
-                    className="w-full py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 disabled:bg-gray-400 transition-colors"
-                  >
-                    {purchasingId === products[0].variantId ? 'Processing...' : 'Purchase 30 Day Pass'}
-                  </button>
+                  {isAuthenticated && customer?.hasCeramicsMembership && customer?.isMembershipActive ? (
+                    <div className="space-y-3">
+                      <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                        <p className="text-green-800 font-semibold text-sm text-center">
+                          ✓ You already own this pass
+                        </p>
+                        {customer.membershipExpiryDate && (
+                          <p className="text-green-700 text-xs text-center mt-1">
+                            Valid until {new Date(customer.membershipExpiryDate).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                            })}
+                          </p>
+                        )}
+                      </div>
+                      <button
+                        disabled
+                        className="w-full py-3 bg-gray-300 text-gray-500 rounded-lg font-semibold cursor-not-allowed"
+                      >
+                        Already Purchased
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => handlePurchase(products[0].variantId)}
+                      disabled={purchasingId === products[0].variantId}
+                      className="w-full py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 disabled:bg-gray-400 transition-colors"
+                    >
+                      {purchasingId === products[0].variantId ? 'Processing...' : 'Purchase 30 Day Pass'}
+                    </button>
+                  )}
                 </div>
               )}
 
