@@ -91,7 +91,7 @@ async function processInstagramMedia(mediaData: any) {
     }
 
     // Fetch full media details from Instagram Graph API
-    const mediaUrl = `https://graph.instagram.com/${mediaId}?fields=id,caption,media_type,media_url,permalink,timestamp&access_token=${accessToken}`;
+    const mediaUrl = `https://graph.instagram.com/${mediaId}?fields=id,caption,media_type,media_url,permalink,timestamp,children{media_url,media_type}&access_token=${accessToken}`;
     const response = await fetch(mediaUrl);
     
     if (!response.ok) {
@@ -101,18 +101,35 @@ async function processInstagramMedia(mediaData: any) {
 
     const media = await response.json();
 
-    // Only process images (not videos or carousels for now)
-    if (media.media_type !== 'IMAGE') {
-      console.log(`Instagram post ${mediaId} is not an image, skipping`);
+    // Process IMAGE or CAROUSEL_ALBUM types
+    if (media.media_type !== 'IMAGE' && media.media_type !== 'CAROUSEL_ALBUM') {
+      console.log(`Instagram post ${mediaId} is not an image or carousel, skipping`);
       return;
     }
 
-    console.log('Analyzing flyer image with Google Vision API...');
+    // Collect all image URLs (for carousel albums, get all children images)
+    const imageUrls: string[] = [];
+    
+    if (media.media_type === 'CAROUSEL_ALBUM' && media.children?.data) {
+      // Filter only images from carousel (skip videos)
+      const imageChildren = media.children.data.filter((child: any) => child.media_type === 'IMAGE');
+      imageUrls.push(...imageChildren.map((child: any) => child.media_url));
+    } else if (media.media_type === 'IMAGE') {
+      imageUrls.push(media.media_url);
+    }
 
-    // Extract text from flyer image using Google Vision
+    if (imageUrls.length === 0) {
+      console.log('No images found in post, skipping');
+      return;
+    }
+
+    console.log(`Found ${imageUrls.length} image(s) in post`);
+    console.log('Analyzing first flyer image with Google Vision API...');
+
+    // Extract text from the first image using Google Vision
     let extractedText: string;
     try {
-      extractedText = await extractTextFromImage(media.media_url);
+      extractedText = await extractTextFromImage(imageUrls[0]);
     } catch (error) {
       console.error('Failed to extract text from image:', error);
       // If Vision API fails, skip this event
@@ -134,8 +151,9 @@ async function processInstagramMedia(mediaData: any) {
       location: eventDetails.location,
     });
 
-    // Download and upload image to Sanity
-    const imageAsset = await uploadImageToSanity(media.media_url);
+    // Upload all images to Sanity
+    console.log(`Uploading ${imageUrls.length} image(s) to Sanity...`);
+    const imageAssets = await Promise.all(imageUrls.map(url => uploadImageToSanity(url)));
 
     // Combine date and time
     const eventDate = combineDateAndTime(eventDetails.date, eventDetails.time);
@@ -146,8 +164,8 @@ async function processInstagramMedia(mediaData: any) {
     // Use extracted title or create from first line of text
     const title = eventDetails.title || 'Event from Instagram';
 
-    // Create event in Sanity
-    const event = {
+    // Create event in Sanity with main image and additional images
+    const event: any = {
       _type: 'event',
       title,
       slug: {
@@ -158,7 +176,7 @@ async function processInstagramMedia(mediaData: any) {
         _type: 'image',
         asset: {
           _type: 'reference',
-          _ref: imageAsset._id,
+          _ref: imageAssets[0]._id,
         },
       },
       date: eventDate,
@@ -168,6 +186,17 @@ async function processInstagramMedia(mediaData: any) {
       importedFromInstagram: true,
       publishedAt: new Date().toISOString(),
     };
+
+    // Add additional images if there are more than one
+    if (imageAssets.length > 1) {
+      event.images = imageAssets.slice(1).map(asset => ({
+        _type: 'image',
+        asset: {
+          _type: 'reference',
+          _ref: asset._id,
+        },
+      }));
+    }
 
     if (!writeClient) {
       console.error('Sanity writeClient not initialized');

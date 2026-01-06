@@ -1,10 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { SanityEvent, urlFor } from '@/lib/sanity';
-import { X } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface EventModalProps {
   event: SanityEvent | null;
@@ -12,9 +12,17 @@ interface EventModalProps {
 }
 
 export default function EventModal({ event, onClose }: EventModalProps) {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
   if (!event) return null;
 
-  const imageUrl = event.image?.asset?.url ? event.image.asset.url : urlFor(event.image).url();
+  // Collect all images (main image + additional images)
+  const allImages = [event.image, ...(event.images || [])].map(img => 
+    img?.asset?.url ? img.asset.url : urlFor(img).url()
+  );
+  
+  const hasMultipleImages = allImages.length > 1;
+
   const eventDate = new Date(event.date);
   const formattedDate = eventDate.toLocaleDateString('en-US', {
     weekday: 'long',
@@ -26,8 +34,14 @@ export default function EventModal({ event, onClose }: EventModalProps) {
     hour: 'numeric',
     minute: '2-digit',
   });
-  
-  const locationLabel = event.location === 'suydam' ? 'Suydam' : 'Bogart';
+
+  const handlePrevImage = () => {
+    setCurrentImageIndex((prev) => (prev === 0 ? allImages.length - 1 : prev - 1));
+  };
+
+  const handleNextImage = () => {
+    setCurrentImageIndex((prev) => (prev === allImages.length - 1 ? 0 : prev + 1));
+  };
 
   return (
     <AnimatePresence>
@@ -54,15 +68,71 @@ export default function EventModal({ event, onClose }: EventModalProps) {
             <X size={24} className="text-black" />
           </button>
 
-          {/* Event Image */}
-          <div className="relative w-full h-[400px]">
-            <Image
-              src={imageUrl}
-              alt={event.title}
-              fill
-              className="object-cover"
-              priority
-            />
+          {/* Event Image Carousel */}
+          <div className="relative w-full h-[400px] bg-gray-900">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentImageIndex}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="relative w-full h-full"
+              >
+                <Image
+                  src={allImages[currentImageIndex]}
+                  alt={`${event.title} - Image ${currentImageIndex + 1}`}
+                  fill
+                  className="object-cover"
+                  priority={currentImageIndex === 0}
+                />
+              </motion.div>
+            </AnimatePresence>
+
+            {/* Navigation Arrows (only show if multiple images) */}
+            {hasMultipleImages && (
+              <>
+                <button
+                  onClick={handlePrevImage}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors"
+                  aria-label="Previous image"
+                >
+                  <ChevronLeft size={32} />
+                </button>
+                <button
+                  onClick={handleNextImage}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors"
+                  aria-label="Next image"
+                >
+                  <ChevronRight size={32} />
+                </button>
+              </>
+            )}
+
+            {/* Image Counter & Dots (only show if multiple images) */}
+            {hasMultipleImages && (
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
+                {/* Dot Indicators */}
+                <div className="flex gap-2">
+                  {allImages.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentImageIndex(index)}
+                      className={`w-2 h-2 rounded-full transition-all ${
+                        index === currentImageIndex
+                          ? 'bg-white w-4'
+                          : 'bg-white/50 hover:bg-white/75'
+                      }`}
+                      aria-label={`Go to image ${index + 1}`}
+                    />
+                  ))}
+                </div>
+                {/* Counter */}
+                <div className="bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+                  {currentImageIndex + 1} / {allImages.length}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Event Details */}
@@ -76,10 +146,6 @@ export default function EventModal({ event, onClose }: EventModalProps) {
               <div>
                 <span className="font-bold">Time:</span> {formattedTime}
               </div>
-            </div>
-
-            <div className="mb-6 text-lg">
-              <span className="font-bold">Location:</span> {locationLabel}
             </div>
 
             <div className="mb-6">

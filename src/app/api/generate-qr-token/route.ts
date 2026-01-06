@@ -3,9 +3,9 @@ import { generateQRToken } from '@/lib/qrToken';
 
 export async function POST(request: NextRequest) {
   try {
-    const { customerId, customerName, membershipExpiryDate } = await request.json();
+    const { customerId, customerName, membershipType, membershipExpiryDate } = await request.json();
 
-    if (!customerId || !customerName || !membershipExpiryDate) {
+    if (!customerId || !customerName || !membershipType || !membershipExpiryDate) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate token server-side (has access to QR_TOKEN_SECRET)
-    const token = await generateQRToken(customerId, customerName, membershipExpiryDate);
+    const token = await generateQRToken(customerId, customerName, membershipType, membershipExpiryDate);
 
     return NextResponse.json({ token });
   } catch (error) {

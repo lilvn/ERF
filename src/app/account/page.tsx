@@ -82,6 +82,7 @@ export default function AccountPage() {
             <MemberQRCode 
               customerId={customer.customerId}
               customerName={`${customer.firstName} ${lastInitial}.`}
+              membershipType={customer.membershipType || 'Unknown'}
               membershipExpiryDate={customer.membershipExpiryDate || ''}
             />
             <p className="text-sm text-gray-600 mt-4 text-center max-w-xs">

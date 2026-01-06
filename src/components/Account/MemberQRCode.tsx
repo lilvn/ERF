@@ -6,10 +6,11 @@ import { QRCodeCanvas } from 'qrcode.react';
 interface MemberQRCodeProps {
   customerId: string;
   customerName: string;
+  membershipType: string;
   membershipExpiryDate: string;
 }
 
-export function MemberQRCode({ customerId, customerName, membershipExpiryDate }: MemberQRCodeProps) {
+export function MemberQRCode({ customerId, customerName, membershipType, membershipExpiryDate }: MemberQRCodeProps) {
   const [qrValue, setQrValue] = useState<string>('');
   const [timeRemaining, setTimeRemaining] = useState(180); // 3 minutes in seconds
   const [isGenerating, setIsGenerating] = useState(false);
@@ -26,6 +27,7 @@ export function MemberQRCode({ customerId, customerName, membershipExpiryDate }:
         body: JSON.stringify({
           customerId,
           customerName,
+          membershipType,
           membershipExpiryDate,
         }),
       });
@@ -47,7 +49,7 @@ export function MemberQRCode({ customerId, customerName, membershipExpiryDate }:
   // Generate initial token
   useEffect(() => {
     generateNewToken();
-  }, [customerId, customerName, membershipExpiryDate]);
+  }, [customerId, customerName, membershipType, membershipExpiryDate]);
 
   // Countdown timer
   useEffect(() => {

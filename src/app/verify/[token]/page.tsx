@@ -7,6 +7,7 @@ interface VerificationResult {
   valid: boolean;
   customerName?: string;
   customerId?: string;
+  membershipType?: string;
   membershipExpiryDate?: string;
   error?: string;
 }
@@ -103,7 +104,9 @@ export default function VerifyPage() {
 
             <div className="bg-green-100 p-3 rounded-lg border-2 border-green-500">
               <p className="text-xs text-green-700 mb-1">Membership Status</p>
-              <p className="text-lg font-bold text-green-600">ACTIVE</p>
+              <p className="text-lg font-bold text-green-600">
+                {result.membershipType ? `${result.membershipType.toUpperCase()} - ACTIVE` : 'ACTIVE'}
+              </p>
             </div>
 
             {result.membershipExpiryDate && (

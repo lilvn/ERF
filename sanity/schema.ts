@@ -34,6 +34,20 @@ export const eventSchema = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'images',
+      title: 'Additional Images',
+      type: 'array',
+      description: 'Additional images for carousel (for multi-image Instagram posts)',
+      of: [
+        {
+          type: 'image',
+          options: {
+            hotspot: true,
+          },
+        },
+      ],
+    }),
+    defineField({
       name: 'date',
       title: 'Event Date',
       type: 'datetime',

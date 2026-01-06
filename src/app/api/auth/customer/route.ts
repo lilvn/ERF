@@ -28,30 +28,61 @@ export async function GET(request: NextRequest) {
     const customerId = extractCustomerId(customer.id);
 
     // Check orders for membership products and get purchase date
-    let ceramicsMembershipPurchaseDate: string | null = null;
-    let ceramicsMembershipExpiryDate: string | null = null;
+    let membershipType: string | null = null;
+    let membershipPurchaseDate: string | null = null;
+    let membershipExpiryDate: string | null = null;
     
+    // Check for different membership types
     const ceramicsOrder = customer.orders?.edges?.find((edge: any) =>
       edge.node.lineItems?.edges?.some((item: any) =>
         item.node.title?.toLowerCase().includes('ceramics')
       )
     );
 
-    if (ceramicsOrder) {
+    const woodshopOrder = customer.orders?.edges?.find((edge: any) =>
+      edge.node.lineItems?.edges?.some((item: any) =>
+        item.node.title?.toLowerCase().includes('woodshop')
+      )
+    );
+
+    const studioOrder = customer.orders?.edges?.find((edge: any) =>
+      edge.node.lineItems?.edges?.some((item: any) =>
+        item.node.title?.toLowerCase().includes('studio')
+      )
+    );
+
+    // Determine which membership to use (prioritize most recent)
+    const membershipOrders = [
+      { order: ceramicsOrder, type: 'Ceramics' },
+      { order: woodshopOrder, type: 'Woodshop' },
+      { order: studioOrder, type: 'Studio' },
+    ].filter(m => m.order);
+
+    if (membershipOrders.length > 0) {
+      // Sort by date to get most recent
+      membershipOrders.sort((a, b) => {
+        const dateA = new Date(a.order.node.processedAt).getTime();
+        const dateB = new Date(b.order.node.processedAt).getTime();
+        return dateB - dateA;
+      });
+
+      const latestMembership = membershipOrders[0];
+      membershipType = latestMembership.type;
+      
       // Get the actual order creation date (purchase date)
-      const orderDate = ceramicsOrder.node.processedAt;
+      const orderDate = latestMembership.order.node.processedAt;
       const purchaseDate = new Date(orderDate);
-      ceramicsMembershipPurchaseDate = purchaseDate.toISOString();
+      membershipPurchaseDate = purchaseDate.toISOString();
       
       // Calculate expiry date (30 days from actual purchase date)
       const expiryDate = new Date(purchaseDate);
       expiryDate.setDate(expiryDate.getDate() + 30);
-      ceramicsMembershipExpiryDate = expiryDate.toISOString();
+      membershipExpiryDate = expiryDate.toISOString();
     }
 
     const hasCeramicsMembership = !!ceramicsOrder;
-    const isMembershipActive = ceramicsMembershipExpiryDate 
-      ? new Date(ceramicsMembershipExpiryDate) > new Date()
+    const isMembershipActive = membershipExpiryDate 
+      ? new Date(membershipExpiryDate) > new Date()
       : false;
 
     const response = {
@@ -62,7 +93,8 @@ export async function GET(request: NextRequest) {
       email: customer.emailAddress?.emailAddress || '',
       hasCeramicsMembership,
       isMembershipActive,
-      membershipExpiryDate: ceramicsMembershipExpiryDate,
+      membershipType,
+      membershipExpiryDate,
       orders: (customer.orders?.edges || []).map((edge: any) => ({
         id: edge.node.id,
         orderNumber: edge.node.number,

@@ -76,6 +76,27 @@ export interface SanityEvent {
       width: number;
     };
   };
+  images?: Array<{
+    asset: {
+      _ref: string;
+      _type: 'reference';
+      _id?: string;
+      url?: string;
+      metadata?: {
+        dimensions?: {
+          width: number;
+          height: number;
+          aspectRatio: number;
+        };
+      };
+    };
+    hotspot?: {
+      x: number;
+      y: number;
+      height: number;
+      width: number;
+    };
+  }>;
   date: string;
   description: string;
   location: 'suydam' | 'bogart';
@@ -94,6 +115,20 @@ export const EVENTS_QUERY = `*[_type == "event" && defined(publishedAt)] | order
   title,
   slug,
   image {
+    asset-> {
+      _id,
+      url,
+      metadata {
+        dimensions {
+          width,
+          height,
+          aspectRatio
+        }
+      }
+    },
+    hotspot
+  },
+  images[] {
     asset-> {
       _id,
       url,
@@ -137,6 +172,20 @@ export const EVENTS_BY_LOCATION_QUERY = `*[_type == "event" && defined(published
     },
     hotspot
   },
+  images[] {
+    asset-> {
+      _id,
+      url,
+      metadata {
+        dimensions {
+          width,
+          height,
+          aspectRatio
+        }
+      }
+    },
+    hotspot
+  },
   date,
   description,
   location,
@@ -167,6 +216,20 @@ export const EVENTS_BY_MONTH_QUERY = `*[_type == "event" && defined(publishedAt)
     },
     hotspot
   },
+  images[] {
+    asset-> {
+      _id,
+      url,
+      metadata {
+        dimensions {
+          width,
+          height,
+          aspectRatio
+        }
+      }
+    },
+    hotspot
+  },
   date,
   description,
   location,
@@ -184,6 +247,20 @@ export const UPCOMING_EVENTS_QUERY = `*[_type == "event" && defined(publishedAt)
   title,
   slug,
   image {
+    asset-> {
+      _id,
+      url,
+      metadata {
+        dimensions {
+          width,
+          height,
+          aspectRatio
+        }
+      }
+    },
+    hotspot
+  },
+  images[] {
     asset-> {
       _id,
       url,

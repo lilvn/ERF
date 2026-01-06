@@ -11,6 +11,7 @@ interface Customer {
   email: string;
   hasCeramicsMembership: boolean;
   isMembershipActive: boolean;
+  membershipType: string | null;
   membershipExpiryDate: string | null;
   orders: Array<{
     id: string;

@@ -5,7 +5,6 @@ import type { Metadata } from "next";
 import { getAllEvents, getMonthsWithEvents, SanityEvent } from '@/lib/sanity';
 import EventsCalendar from '@/components/Events/EventsCalendar';
 import MonthSelector from '@/components/Events/MonthSelector';
-import LocationFilter from '@/components/Events/LocationFilter';
 import EventModal from '@/components/Events/EventModal';
 import PastEventsButton from '@/components/Events/PastEventsButton';
 
@@ -13,7 +12,6 @@ export default function EventsPage() {
   const [allEvents, setAllEvents] = useState<SanityEvent[]>([]);
   const [availableMonths, setAvailableMonths] = useState<{ year: number; month: number; count: number }[]>([]);
   const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
-  const [selectedLocation, setSelectedLocation] = useState<'all' | 'suydam' | 'bogart'>('all');
   const [selectedEvent, setSelectedEvent] = useState<SanityEvent | null>(null);
   const [showPastEvents, setShowPastEvents] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -47,14 +45,9 @@ export default function EventsPage() {
     fetchEvents();
   }, []);
 
-  // Filter events by location and time period
+  // Filter events by time period
   const filteredEvents = useMemo(() => {
     let filtered = allEvents;
-    
-    // Filter by location
-    if (selectedLocation !== 'all') {
-      filtered = filtered.filter(event => event.location === selectedLocation);
-    }
     
     // Filter by past/upcoming
     const now = new Date();
@@ -73,14 +66,10 @@ export default function EventsPage() {
     });
     
     return filtered;
-  }, [allEvents, selectedLocation, selectedMonth, showPastEvents]);
+  }, [allEvents, selectedMonth, showPastEvents]);
 
   const handleMonthSelect = (year: number, month: number) => {
     setSelectedMonth(new Date(year, month, 1));
-  };
-
-  const handleLocationChange = (location: 'all' | 'suydam' | 'bogart') => {
-    setSelectedLocation(location);
   };
 
   const handleEventClick = (event: SanityEvent) => {
@@ -132,14 +121,6 @@ export default function EventsPage() {
     <div className="min-h-screen bg-white text-black p-8">
       <header className="mb-8">
         <h1 className="text-3xl lg:text-4xl font-bold text-center mb-8">EVENTS</h1>
-        
-        {/* Location Filter */}
-        <div className="flex justify-center mb-6">
-          <LocationFilter
-            selectedLocation={selectedLocation}
-            onLocationChange={handleLocationChange}
-          />
-        </div>
       </header>
 
       {/* Calendar Container */}
