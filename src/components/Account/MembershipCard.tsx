@@ -40,11 +40,6 @@ export function MembershipCard({ type, isActive, expiryDate }: MembershipCardPro
       
       <div className="mt-4 space-y-2 text-sm">
         <div className="flex justify-between">
-          <span className="text-gray-600">Status:</span>
-          <span className="font-medium text-black">{isActive ? 'ACTIVE' : 'INACTIVE'}</span>
-        </div>
-        
-        <div className="flex justify-between">
           <span className="text-gray-600">Valid Till:</span>
           <span className="font-medium text-black">{formatDate(expiryDate)}</span>
         </div>
