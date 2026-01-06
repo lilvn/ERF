@@ -111,51 +111,72 @@ export default function CeramicsPage() {
             <div className="text-center py-12">
               <p className="text-gray-600">Loading membership options...</p>
             </div>
-          ) : products.length === 0 ? (
-            <div className="text-center py-12 bg-gray-50 rounded-lg">
-              <p className="text-gray-600 mb-4">
-                Membership options coming soon!
-              </p>
-              <p className="text-sm text-gray-500">
-                Check back later or contact us for more information.
-              </p>
-            </div>
           ) : (
             <div className="grid md:grid-cols-2 gap-8">
-              {products.map((product) => (
-                <div
-                  key={product.id}
-                  className="bg-white p-8 rounded-lg border-2 border-gray-200 shadow-lg hover:shadow-xl transition-shadow"
-                >
+              {/* 30 Day Pass */}
+              {products.length > 0 && (
+                <div className="bg-white p-8 rounded-lg border-2 border-gray-200 shadow-lg hover:shadow-xl transition-shadow">
                   <div className="mb-6">
-                    <h4 className="text-2xl font-bold mb-2">{product.title}</h4>
-                    {product.isRecurring && (
-                      <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 text-sm font-semibold rounded-full">
-                        Recurring
-                      </span>
-                    )}
+                    <h4 className="text-2xl font-bold mb-2">Ceramics 30 Day Pass</h4>
                   </div>
 
                   <div className="mb-6">
                     <p className="text-4xl font-bold">
-                      ${parseFloat(product.price).toFixed(2)}
-                      <span className="text-lg font-normal text-gray-600">
-                        {product.isRecurring ? '/month' : ''}
-                      </span>
+                      ${parseFloat(products[0].price).toFixed(2)}
                     </p>
                   </div>
 
-                  <p className="text-gray-700 mb-8">{product.description}</p>
+                  <p className="text-gray-700 mb-8">30 Day Pass for ceramics studio access and services.</p>
 
                   <button
-                    onClick={() => handlePurchase(product.variantId)}
-                    disabled={purchasingId === product.variantId}
+                    onClick={() => handlePurchase(products[0].variantId)}
+                    disabled={purchasingId === products[0].variantId}
                     className="w-full py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 disabled:bg-gray-400 transition-colors"
                   >
-                    {purchasingId === product.variantId ? 'Processing...' : 'Purchase Membership'}
+                    {purchasingId === products[0].variantId ? 'Processing...' : 'Purchase 30 Day Pass'}
                   </button>
                 </div>
-              ))}
+              )}
+
+              {/* Monthly Membership (Coming Soon) */}
+              <div className="bg-white p-8 rounded-lg border-2 border-gray-300 shadow-lg relative opacity-75">
+                <div className="absolute top-6 right-6">
+                  <span className="px-3 py-1 bg-blue-500 text-white text-xs font-semibold rounded-full">
+                    COMING SOON
+                  </span>
+                </div>
+                
+                <div className="mb-6">
+                  <h4 className="text-2xl font-bold mb-2 text-gray-700">Monthly Membership</h4>
+                </div>
+
+                <div className="mb-6">
+                  <p className="text-4xl font-bold text-gray-700">
+                    ${products.length > 0 ? parseFloat(products[0].price).toFixed(2) : '99.00'}
+                    <span className="text-lg font-normal text-gray-600"> /month</span>
+                  </p>
+                </div>
+
+                <p className="text-gray-600 mb-8">Recurring monthly membership with auto-pay for ceramics studio access and services.</p>
+
+                <button
+                  disabled
+                  className="w-full py-3 bg-gray-300 text-gray-500 rounded-lg font-semibold cursor-not-allowed"
+                >
+                  Coming Soon
+                </button>
+              </div>
+
+              {products.length === 0 && (
+                <div className="col-span-2 text-center py-12 bg-gray-50 rounded-lg">
+                  <p className="text-gray-600 mb-4">
+                    Membership options coming soon!
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    Check back later or contact us for more information.
+                  </p>
+                </div>
+              )}
             </div>
           )}
         </div>
