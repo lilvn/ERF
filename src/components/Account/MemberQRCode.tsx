@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { QRCodeCanvas } from 'qrcode.react';
-import { generateQRToken } from '@/lib/qrToken';
 
 interface MemberQRCodeProps {
   customerId: string;
@@ -17,7 +16,23 @@ export function MemberQRCode({ customerId, customerName }: MemberQRCodeProps) {
   const generateNewToken = async () => {
     setIsGenerating(true);
     try {
-      const token = await generateQRToken(customerId, customerName);
+      // Call server-side API to generate token (has access to secret)
+      const response = await fetch('/api/generate-qr-token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          customerId,
+          customerName,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate token');
+      }
+
+      const { token } = await response.json();
       const verifyUrl = `${window.location.origin}/verify/${token}`;
       setQrValue(verifyUrl);
       setTimeRemaining(180);
