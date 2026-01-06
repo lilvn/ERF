@@ -167,15 +167,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
     }
 
-    // Check for studio membership tag
-    if (customer.tags.includes('studio-member')) {
-      memberships.push({
-        type: 'studio',
-        active: true,
-        expiryDate: null, // TODO: Get from metafields when available
-      });
-    }
-
     return memberships;
   };
 

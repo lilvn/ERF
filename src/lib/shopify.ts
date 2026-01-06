@@ -225,16 +225,16 @@ export async function getMembershipProducts() {
   return response.products.edges.map(edge => edge.node);
 }
 
-// Create Checkout
+// Create Checkout (using Cart API - modern approach)
 export async function createCheckout(variantId: string, quantity: number = 1) {
   const mutation = `
-    mutation checkoutCreate($input: CheckoutCreateInput!) {
-      checkoutCreate(input: $input) {
-        checkout {
+    mutation cartCreate($input: CartInput!) {
+      cartCreate(input: $input) {
+        cart {
           id
-          webUrl
+          checkoutUrl
         }
-        checkoutUserErrors {
+        userErrors {
           code
           field
           message
@@ -244,30 +244,39 @@ export async function createCheckout(variantId: string, quantity: number = 1) {
   `;
 
   const response = await shopifyFetch<{
-    checkoutCreate: {
-      checkout?: {
+    cartCreate: {
+      cart?: {
         id: string;
-        webUrl: string;
+        checkoutUrl: string;
       };
-      checkoutUserErrors: Array<{ message: string }>;
+      userErrors: Array<{ message: string; code?: string; field?: string[] }>;
     };
   }>(mutation, {
     input: {
-      lineItems: [{ variantId, quantity }],
+      lines: [
+        {
+          merchandiseId: variantId,
+          quantity: quantity,
+        },
+      ],
     },
   });
 
-  const { checkout, checkoutUserErrors } = response.checkoutCreate;
+  const { cart, userErrors } = response.cartCreate;
 
-  if (checkoutUserErrors.length > 0) {
-    throw new Error(checkoutUserErrors[0].message);
+  if (userErrors.length > 0) {
+    console.error('Shopify cart errors:', userErrors);
+    throw new Error(userErrors[0].message || 'Failed to create cart');
   }
 
-  if (!checkout) {
-    throw new Error('Failed to create checkout');
+  if (!cart || !cart.checkoutUrl) {
+    throw new Error('Failed to create checkout URL');
   }
 
-  return checkout;
+  return {
+    id: cart.id,
+    webUrl: cart.checkoutUrl,
+  };
 }
 
 // Customer Logout
