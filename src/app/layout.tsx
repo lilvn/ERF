@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { AnaglyphProvider } from "@/context/AnaglyphContext";
-import { AuthProvider } from "@/context/AuthContext";
+import { CustomerAuthProvider } from "@/context/CustomerAuthContext";
 import { Menu } from "@/components/Menu";
 import { DevControls } from "@/components/DevControls";
 import { SVGFilters } from "@/components/SVGFilters";
@@ -23,7 +23,7 @@ export default function RootLayout({
       <body className="antialiased">
         <ThemeProvider>
           <AnaglyphProvider>
-            <AuthProvider>
+            <CustomerAuthProvider>
               <Preloader>
                 <SVGFilters />
                 <Menu />
@@ -32,7 +32,7 @@ export default function RootLayout({
                 </main>
                 <DevControls />
               </Preloader>
-            </AuthProvider>
+            </CustomerAuthProvider>
           </AnaglyphProvider>
         </ThemeProvider>
       </body>

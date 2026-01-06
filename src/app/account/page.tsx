@@ -1,37 +1,16 @@
 'use client';
 
-import { useState } from 'react';
-import type { Metadata } from "next";
-import { useAuth } from '@/context/AuthContext';
+import { useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useCustomerAuth } from '@/context/CustomerAuthContext';
+import { OTPLogin } from '@/components/Account/OTPLogin';
 import { MemberQRCode } from '@/components/Account/MemberQRCode';
 import { MembershipCard } from '@/components/Account/MembershipCard';
 
 export default function AccountPage() {
-  const { customer, isAuthenticated, isLoading, login, logout, getMemberships } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setIsSubmitting(true);
-
-    try {
-      await login(email, password);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed');
-    }
-
-    setIsSubmitting(false);
-  };
-
-  const handleLogout = async () => {
-    await logout();
-    setEmail('');
-    setPassword('');
-  };
+  const { customer, isAuthenticated, isLoading, logout } = useCustomerAuth();
+  const searchParams = useSearchParams();
+  const error = searchParams.get('error');
 
   if (isLoading) {
     return (
@@ -41,7 +20,7 @@ export default function AccountPage() {
     );
   }
 
-  // Login Form
+  // Not authenticated - show login
   if (!isAuthenticated || !customer) {
     return (
       <div className="min-h-screen bg-white text-black">
@@ -50,71 +29,26 @@ export default function AccountPage() {
         </header>
 
         <div className="flex items-center justify-center min-h-screen px-4">
-          <div className="w-full max-w-md">
-            <div className="bg-white p-8 rounded-lg shadow-lg border border-gray-200">
-              <h2 className="text-2xl font-bold mb-6 text-center">Sign In</h2>
-
-              <form onSubmit={handleLogin} className="space-y-4">
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium mb-2">
-                    Email
-                  </label>
-                  <input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
-                    placeholder="your@email.com"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="password" className="block text-sm font-medium mb-2">
-                    Password
-                  </label>
-                  <input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
-                    placeholder="••••••••"
-                  />
-                </div>
-
-                {error && (
-                  <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                    <p className="text-sm text-red-600">{error}</p>
-                  </div>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 disabled:bg-gray-400 transition-colors"
-                >
-                  {isSubmitting ? 'Signing in...' : 'Sign In'}
-                </button>
-              </form>
-
-              <p className="mt-6 text-center text-sm text-gray-600">
-                Don't have an account?{' '}
-                <a href="#" className="text-black font-semibold hover:underline">
-                  Purchase a membership
-                </a>
-              </p>
+          {error && (
+            <div className="absolute top-32 left-1/2 transform -translate-x-1/2 max-w-md w-full">
+              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-600 text-center">
+                  {error === 'missing_parameters' && 'Missing required parameters'}
+                  {error === 'missing_session' && 'Session expired. Please try again.'}
+                  {error === 'invalid_state' && 'Invalid request. Please try again.'}
+                  {error === 'authentication_failed' && 'Authentication failed. Please try again.'}
+                  {!['missing_parameters', 'missing_session', 'invalid_state', 'authentication_failed'].includes(error) && 'An error occurred. Please try again.'}
+                </p>
+              </div>
             </div>
-          </div>
+          )}
+          <OTPLogin />
         </div>
       </div>
     );
   }
 
-  // Account Dashboard
-  const memberships = getMemberships();
+  // Authenticated - show account dashboard
   const lastInitial = customer.lastName.charAt(0).toUpperCase();
 
   return (
@@ -133,7 +67,7 @@ export default function AccountPage() {
             <p className="text-gray-600">{customer.email}</p>
           </div>
           <button
-            onClick={handleLogout}
+            onClick={logout}
             className="px-6 py-2 border-2 border-black rounded-lg font-semibold hover:bg-black hover:text-white transition-colors"
           >
             Sign Out
@@ -157,15 +91,12 @@ export default function AccountPage() {
           {/* Memberships Section */}
           <div className="space-y-4">
             <h3 className="text-xl font-bold mb-4">Active Memberships</h3>
-            {memberships.length > 0 ? (
-              memberships.map((membership) => (
-                <MembershipCard
-                  key={membership.type}
-                  type={membership.type}
-                  status={membership.active ? 'active' : 'expired'}
-                  expiryDate={membership.expiryDate}
-                />
-              ))
+            {customer.hasCeramicsMembership ? (
+              <MembershipCard
+                type="ceramics"
+                status="active"
+                expiryDate={null}
+              />
             ) : (
               <div className="p-6 bg-gray-50 rounded-lg border border-gray-300 text-center">
                 <p className="text-gray-600 mb-4">No active memberships</p>
@@ -193,13 +124,6 @@ export default function AccountPage() {
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <p className="font-semibold">Order #{order.orderNumber}</p>
-                      <p className="text-sm text-gray-600">
-                        {new Date(order.processedAt).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric',
-                        })}
-                      </p>
                     </div>
                     <p className="font-bold text-lg">
                       ${parseFloat(order.totalPrice).toFixed(2)} {order.currency}

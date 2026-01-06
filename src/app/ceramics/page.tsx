@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import type { Metadata } from "next";
-import { useAuth } from '@/context/AuthContext';
+import { useCustomerAuth } from '@/context/CustomerAuthContext';
 import { getMembershipProducts, createCheckout } from '@/lib/shopify';
 
 interface MembershipProduct {
@@ -16,13 +16,12 @@ interface MembershipProduct {
 }
 
 export default function CeramicsPage() {
-  const { isAuthenticated, getMemberships } = useAuth();
+  const { isAuthenticated, customer } = useCustomerAuth();
   const [products, setProducts] = useState<MembershipProduct[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [purchasingId, setPurchasingId] = useState<string | null>(null);
 
-  const memberships = getMemberships();
-  const hasCeramicsMembership = memberships.some(m => m.type === 'ceramics' && m.active);
+  const hasCeramicsMembership = customer?.hasCeramicsMembership || false;
 
   useEffect(() => {
     const loadProducts = async () => {
