@@ -9,6 +9,7 @@ const getSecretKey = () => new TextEncoder().encode(QR_TOKEN_SECRET);
 export interface QRTokenPayload {
   customerId: string;
   customerName: string;
+  membershipExpiryDate: string;
   iat?: number;
   exp?: number;
 }
@@ -17,12 +18,13 @@ export interface QRTokenPayload {
  * Generate a time-limited QR token
  * Valid for 3 minutes to prevent screenshot fraud
  */
-export async function generateQRToken(customerId: string, customerName: string): Promise<string> {
+export async function generateQRToken(customerId: string, customerName: string, membershipExpiryDate: string): Promise<string> {
   const secret = getSecretKey();
   
   const token = await new SignJWT({ 
     customerId, 
-    customerName 
+    customerName,
+    membershipExpiryDate
   })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
@@ -42,7 +44,7 @@ export async function verifyQRToken(token: string): Promise<QRTokenPayload | nul
     const { payload } = await jwtVerify(token, secret);
     
     // Validate payload has required fields
-    if (!payload.customerId || !payload.customerName) {
+    if (!payload.customerId || !payload.customerName || !payload.membershipExpiryDate) {
       return null;
     }
     

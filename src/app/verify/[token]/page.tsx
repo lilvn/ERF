@@ -7,6 +7,7 @@ interface VerificationResult {
   valid: boolean;
   customerName?: string;
   customerId?: string;
+  membershipExpiryDate?: string;
   error?: string;
 }
 
@@ -100,15 +101,23 @@ export default function VerifyPage() {
               <p className="text-2xl font-bold text-black">{result.customerName}</p>
             </div>
 
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="text-sm text-gray-600 mb-1">Member ID</p>
-              <p className="text-lg font-mono text-black">{result.customerId}</p>
-            </div>
-
             <div className="bg-green-100 p-4 rounded-lg border-2 border-green-500">
               <p className="text-sm text-green-700 mb-1">Membership Status</p>
               <p className="text-xl font-bold text-green-600">ACTIVE</p>
             </div>
+
+            {result.membershipExpiryDate && (
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-sm text-gray-600 mb-1">Valid Till</p>
+                <p className="text-lg font-semibold text-black">
+                  {new Date(result.membershipExpiryDate).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Timestamp */}

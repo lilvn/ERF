@@ -34,6 +34,7 @@ export async function POST(request: NextRequest) {
       valid: true,
       customerName: payload.customerName,
       customerId: payload.customerId,
+      membershipExpiryDate: payload.membershipExpiryDate,
     });
   } catch (error) {
     console.error('Token verification error:', error);
