@@ -41,7 +41,12 @@ export async function verifyQRToken(token: string): Promise<QRTokenPayload | nul
     const secret = getSecretKey();
     const { payload } = await jwtVerify(token, secret);
     
-    return payload as QRTokenPayload;
+    // Validate payload has required fields
+    if (!payload.customerId || !payload.customerName) {
+      return null;
+    }
+    
+    return payload as unknown as QRTokenPayload;
   } catch (error) {
     // Token is invalid or expired
     return null;
