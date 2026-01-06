@@ -126,20 +126,17 @@ export default function CeramicsPage() {
 
                   {isAuthenticated && customer?.hasCeramicsMembership && customer?.isMembershipActive ? (
                     <div className="space-y-3">
-                      <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                        <p className="text-green-800 font-semibold text-sm text-center">
-                          ✓ You already own this pass
-                        </p>
-                        {customer.membershipExpiryDate && (
-                          <p className="text-green-700 text-xs text-center mt-1">
+                      {customer.membershipExpiryDate && (
+                        <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                          <p className="text-green-700 text-sm text-center">
                             Valid until {new Date(customer.membershipExpiryDate).toLocaleDateString('en-US', {
                               year: 'numeric',
                               month: 'long',
                               day: 'numeric',
                             })}
                           </p>
-                        )}
-                      </div>
+                        </div>
+                      )}
                       <button
                         disabled
                         className="w-full py-3 bg-gray-300 text-gray-500 rounded-lg font-semibold cursor-not-allowed"
