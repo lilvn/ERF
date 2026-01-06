@@ -72,10 +72,6 @@ export default function CeramicsPage() {
         {/* Hero Section */}
         <div className="max-w-3xl mx-auto text-center mb-16">
           <h2 className="text-4xl font-bold mb-6">Ceramics Studio Membership</h2>
-          <p className="text-xl text-gray-700 leading-relaxed">
-            Access our fully equipped ceramics studio with professional wheels, kilns, 
-            glazing stations, and storage space. Perfect for artists of all skill levels.
-          </p>
         </div>
 
         {/* Membership Status */}
@@ -157,7 +153,7 @@ export default function CeramicsPage() {
                   </p>
                 </div>
 
-                <p className="text-gray-600 mb-8">Recurring monthly membership with auto-pay for ceramics studio access and services.</p>
+                <p className="text-gray-600 mb-8">Recurring monthly membership for ceramics studio access and services.</p>
 
                 <button
                   disabled
@@ -181,35 +177,6 @@ export default function CeramicsPage() {
           )}
         </div>
 
-        {/* Features */}
-        <div className="max-w-4xl mx-auto mt-16">
-          <h3 className="text-2xl font-bold text-center mb-8">What's Included</h3>
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="text-center p-6">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">🎨</span>
-              </div>
-              <h4 className="font-bold mb-2">Professional Equipment</h4>
-              <p className="text-sm text-gray-600">Access to wheels, kilns, and tools</p>
-            </div>
-
-            <div className="text-center p-6">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">📦</span>
-              </div>
-              <h4 className="font-bold mb-2">Storage Space</h4>
-              <p className="text-sm text-gray-600">Secure storage for your work</p>
-            </div>
-
-            <div className="text-center p-6">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">👥</span>
-              </div>
-              <h4 className="font-bold mb-2">Community Access</h4>
-              <p className="text-sm text-gray-600">Join workshops and events</p>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
