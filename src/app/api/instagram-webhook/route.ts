@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { writeClient } from '@/lib/sanity';
-import { optimizeInstagramCaption, validateInstagramWebhook } from '@/lib/optimizeContent';
+import { validateInstagramWebhook } from '@/lib/optimizeContent';
+import { extractTextFromImage, parseEventDetails, combineDateAndTime } from '@/lib/googleVision';
 
 /**
  * Instagram Webhook Handler
@@ -106,20 +107,44 @@ async function processInstagramMedia(mediaData: any) {
       return;
     }
 
-    // Optimize content
-    const optimized = optimizeInstagramCaption(media.caption || '');
+    console.log('Analyzing flyer image with Google Vision API...');
+
+    // Extract text from flyer image using Google Vision
+    let extractedText: string;
+    try {
+      extractedText = await extractTextFromImage(media.media_url);
+    } catch (error) {
+      console.error('Failed to extract text from image:', error);
+      // If Vision API fails, skip this event
+      return;
+    }
+
+    if (!extractedText || extractedText.trim().length === 0) {
+      console.log('No text extracted from flyer, skipping');
+      return;
+    }
+
+    // Parse event details from extracted text
+    const eventDetails = parseEventDetails(extractedText);
+    
+    console.log('Parsed event details:', {
+      title: eventDetails.title,
+      date: eventDetails.date,
+      time: eventDetails.time,
+      location: eventDetails.location,
+    });
 
     // Download and upload image to Sanity
     const imageAsset = await uploadImageToSanity(media.media_url);
 
-    // Determine date
-    const eventDate = optimized.detectedDate || media.timestamp || new Date().toISOString();
+    // Combine date and time
+    const eventDate = combineDateAndTime(eventDetails.date, eventDetails.time);
 
-    // Determine location (default to suydam if not detected)
-    const location = optimized.detectedLocation || 'suydam';
+    // Use detected location or default to suydam
+    const location = eventDetails.location || 'suydam';
 
-    // Create title from first line of caption or use default
-    const title = (optimized.description.split('\n')[0] || 'Untitled Event').substring(0, 100);
+    // Use extracted title or create from first line of text
+    const title = eventDetails.title || 'Event from Instagram';
 
     // Create event in Sanity
     const event = {
@@ -137,7 +162,7 @@ async function processInstagramMedia(mediaData: any) {
         },
       },
       date: eventDate,
-      description: optimized.description,
+      description: eventDetails.description || eventDetails.fullText.substring(0, 500),
       location,
       instagramUrl: media.permalink,
       importedFromInstagram: true,
