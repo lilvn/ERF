@@ -27,12 +27,33 @@ export async function GET(request: NextRequest) {
     // Transform data to match our app's format
     const customerId = extractCustomerId(customer.id);
 
-    // Check orders for membership products (Customer Account API doesn't expose tags)
-    const hasCeramicsMembership = customer.orders?.edges?.some((edge: any) =>
+    // Check orders for membership products and get purchase date
+    let ceramicsMembershipPurchaseDate: string | null = null;
+    let ceramicsMembershipExpiryDate: string | null = null;
+    
+    const ceramicsOrder = customer.orders?.edges?.find((edge: any) =>
       edge.node.lineItems?.edges?.some((item: any) =>
         item.node.title?.toLowerCase().includes('ceramics')
       )
-    ) || false;
+    );
+
+    if (ceramicsOrder) {
+      // Get the order creation date (purchase date)
+      // For Customer Account API, we'll use current date as placeholder
+      // In production, you'd store this in customer metafields
+      const purchaseDate = new Date(); // This should come from order data or metafields
+      ceramicsMembershipPurchaseDate = purchaseDate.toISOString();
+      
+      // Calculate expiry date (30 days from purchase)
+      const expiryDate = new Date(purchaseDate);
+      expiryDate.setDate(expiryDate.getDate() + 30);
+      ceramicsMembershipExpiryDate = expiryDate.toISOString();
+    }
+
+    const hasCeramicsMembership = !!ceramicsOrder;
+    const isMembershipActive = ceramicsMembershipExpiryDate 
+      ? new Date(ceramicsMembershipExpiryDate) > new Date()
+      : false;
 
     const response = {
       id: customer.id,
@@ -41,10 +62,12 @@ export async function GET(request: NextRequest) {
       lastName: customer.lastName || '',
       email: customer.emailAddress?.emailAddress || '',
       hasCeramicsMembership,
+      isMembershipActive,
+      membershipExpiryDate: ceramicsMembershipExpiryDate,
       orders: (customer.orders?.edges || []).map((edge: any) => ({
         id: edge.node.id,
         orderNumber: edge.node.number,
-        totalPrice: '0.00', // Customer Account API doesn't expose total price
+        totalPrice: '0.00',
         currency: 'USD',
         items: (edge.node.lineItems?.edges || []).map((item: any) => ({
           title: item.node.title || 'Unknown',

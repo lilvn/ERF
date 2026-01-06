@@ -90,16 +90,16 @@ export default function AccountPage() {
 
           {/* Memberships Section */}
           <div className="space-y-4">
-            <h3 className="text-xl font-bold mb-4">Active Memberships</h3>
+            <h3 className="text-xl font-bold mb-4">Memberships</h3>
             {customer.hasCeramicsMembership ? (
               <MembershipCard
                 type="ceramics"
-                status="active"
-                expiryDate={null}
+                isActive={customer.isMembershipActive}
+                expiryDate={customer.membershipExpiryDate}
               />
             ) : (
               <div className="p-6 bg-gray-50 rounded-lg border border-gray-300 text-center">
-                <p className="text-gray-600 mb-4">No active memberships</p>
+                <p className="text-gray-600 mb-4">No memberships found</p>
                 <a
                   href="/ceramics"
                   className="inline-block px-6 py-2 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors"

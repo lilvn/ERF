@@ -10,6 +10,8 @@ interface Customer {
   lastName: string;
   email: string;
   hasCeramicsMembership: boolean;
+  isMembershipActive: boolean;
+  membershipExpiryDate: string | null;
   orders: Array<{
     id: string;
     orderNumber: number;
