@@ -34,26 +34,13 @@ export function OTPLogin() {
   return (
     <div className="w-full max-w-md mx-auto">
       <div className="bg-white p-8 rounded-lg shadow-lg border border-gray-200">
-        <h2 className="text-2xl font-bold mb-4 text-center">Sign In</h2>
-        
-        <p className="text-gray-600 mb-6 text-center">
-          Sign in with your Shopify account to access your membership
-        </p>
-
         <button
           onClick={handleLogin}
           disabled={isLoading}
           className="w-full py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 disabled:bg-gray-400 transition-colors"
         >
-          {isLoading ? 'Redirecting...' : 'Sign In with Shopify'}
+          {isLoading ? 'Redirecting...' : 'Sign In'}
         </button>
-
-        <p className="mt-6 text-center text-sm text-gray-600">
-          Don't have an account?{' '}
-          <a href="/ceramics" className="text-black font-semibold hover:underline">
-            Purchase a membership
-          </a>
-        </p>
       </div>
     </div>
   );
