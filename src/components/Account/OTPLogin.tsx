@@ -34,6 +34,8 @@ export function OTPLogin() {
   return (
     <div className="w-full max-w-md mx-auto">
       <div className="bg-white p-8 rounded-lg shadow-lg border border-gray-200">
+        <h2 className="text-2xl font-bold mb-6 text-center">ERF Login</h2>
+        
         <button
           onClick={handleLogin}
           disabled={isLoading}
