@@ -142,7 +142,7 @@ function CalendarDayCell({ day, width, selectedMonth, onEventClick, rowHeight }:
       </div>
       
       {/* Event Images - Only show first image, all same width, stacked vertically */}
-      <div className="flex flex-col gap-1 p-1 flex-1 min-h-0">
+      <div className="flex flex-col gap-2 p-2 flex-1 overflow-auto">
         {day.events.map((event, idx) => (
           <EventImage
             key={event._id}
@@ -164,25 +164,20 @@ function EventImage({ event, onClick }: EventImageProps) {
   const imageUrl = event.image?.asset?.url ? event.image.asset.url : urlFor(event.image).url();
   const dimensions = event.image?.asset?.metadata?.dimensions;
   const aspectRatio = dimensions?.aspectRatio || 1;
-  
-  // Calculate flex-grow based on inverse of aspect ratio
-  // Taller images (smaller aspect ratio) should get more vertical space
-  const flexGrow = 1 / aspectRatio;
 
   return (
     <div
-      className="relative cursor-pointer hover:opacity-90 transition-opacity w-full bg-white overflow-hidden"
+      className="relative cursor-pointer hover:opacity-90 transition-opacity w-full flex-shrink-0"
       onClick={onClick}
       style={{
-        flex: `${flexGrow} 1 0`,
-        minHeight: 0,
+        aspectRatio: aspectRatio.toString(),
       }}
     >
       <Image
         src={imageUrl}
         alt={event.title}
         fill
-        className="object-cover"
+        className="object-contain"
         sizes="(max-width: 768px) 100vw, 25vw"
       />
     </div>
