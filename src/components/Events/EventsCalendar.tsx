@@ -142,7 +142,7 @@ function CalendarDayCell({ day, width, selectedMonth, onEventClick, rowHeight }:
       </div>
       
       {/* Event Images - Fill remaining space */}
-      <div className="flex flex-col gap-1 flex-1">
+      <div className="flex flex-col gap-1 flex-1 bg-black">
         {day.events.map((event, idx) => (
           <EventImage
             key={event._id}
@@ -162,17 +162,19 @@ interface EventImageProps {
 
 function EventImage({ event, onClick }: EventImageProps) {
   const imageUrl = event.image?.asset?.url ? event.image.asset.url : urlFor(event.image).url();
+  const dimensions = event.image?.asset?.metadata?.dimensions;
+  const aspectRatio = dimensions?.aspectRatio || 1;
 
   return (
     <div
-      className="relative cursor-pointer hover:opacity-90 transition-opacity w-full flex-1"
+      className="relative cursor-pointer hover:opacity-90 transition-opacity w-full flex-1 min-h-0 bg-black"
       onClick={onClick}
     >
       <Image
         src={imageUrl}
         alt={event.title}
         fill
-        className="object-cover"
+        className="object-contain"
         sizes="(max-width: 768px) 100vw, 25vw"
       />
     </div>
