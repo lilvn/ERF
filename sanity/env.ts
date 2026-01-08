@@ -3,7 +3,7 @@ export const apiVersion =
 
 export const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production';
 
-export const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || '';
+export const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'yf9xyatc';
 
 // Helper to check if Sanity is configured
 export const isSanityConfigured = () => {
