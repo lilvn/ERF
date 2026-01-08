@@ -20,50 +20,30 @@ interface CalendarWeek {
 }
 
 export default function EventsCalendar({ events, selectedMonth, onEventClick }: EventsCalendarProps) {
-  // Generate calendar grid for the selected month
+  // Generate calendar grid - only showing dates with events
   const calendar = useMemo(() => {
-    const year = selectedMonth.getFullYear();
-    const month = selectedMonth.getMonth();
+    // Group events by date
+    const eventsByDate = new Map<string, SanityEvent[]>();
     
-    // Get first day of month and last day of month
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
+    events.forEach(event => {
+      const dateStr = new Date(event.date).toISOString().split('T')[0];
+      const existing = eventsByDate.get(dateStr) || [];
+      eventsByDate.set(dateStr, [...existing, event]);
+    });
     
-    // Get the starting Monday of the week containing the first day
-    const startDate = new Date(firstDay);
-    const dayOfWeek = startDate.getDay();
-    const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Adjust to Monday
-    startDate.setDate(startDate.getDate() + diff);
-    
-    // Build weeks
+    // Sort dates and group into weeks (7 days per row)
+    const sortedDates = Array.from(eventsByDate.keys()).sort();
     const weeks: CalendarWeek[] = [];
-    let currentDate = new Date(startDate);
     
-    while (currentDate <= lastDay || currentDate.getMonth() === month) {
-      const week: CalendarWeek = { days: [] };
-      
-      // Build 7 days for this week
-      for (let i = 0; i < 7; i++) {
-        const dateStr = currentDate.toISOString().split('T')[0];
-        const dayEvents = events.filter(event => {
-          const eventDate = new Date(event.date).toISOString().split('T')[0];
-          return eventDate === dateStr;
-        });
-        
-        week.days.push({
-          date: new Date(currentDate),
-          events: dayEvents,
-        });
-        
-        currentDate.setDate(currentDate.getDate() + 1);
-      }
-      
+    for (let i = 0; i < sortedDates.length; i += 7) {
+      const weekDates = sortedDates.slice(i, i + 7);
+      const week: CalendarWeek = {
+        days: weekDates.map(dateStr => ({
+          date: new Date(dateStr),
+          events: eventsByDate.get(dateStr) || [],
+        })),
+      };
       weeks.push(week);
-      
-      // Stop if we've passed the last day of the month
-      if (currentDate.getDate() > lastDay.getDate() && currentDate.getMonth() !== month) {
-        break;
-      }
     }
     
     return weeks;
@@ -93,15 +73,13 @@ function CalendarWeekRow({ week, selectedMonth, onEventClick }: CalendarWeekRowP
   // Calculate aspect ratios for dynamic column sizing
   const columnSizes = useMemo(() => {
     return week.days.map(day => {
-      if (day.events.length === 0) return 1;
-      
       // Get the widest aspect ratio for this day (if multiple events)
       const aspectRatios = day.events.map(event => {
         const dimensions = event.image?.asset?.metadata?.dimensions;
         return dimensions?.aspectRatio || 1;
       });
       
-      return Math.max(...aspectRatios);
+      return Math.max(...aspectRatios, 1); // Default to 1 if no events
     });
   }, [week]);
   
@@ -131,9 +109,6 @@ interface CalendarDayCellProps {
 }
 
 function CalendarDayCell({ day, width, selectedMonth, onEventClick }: CalendarDayCellProps) {
-  const isCurrentMonth = day.date.getMonth() === selectedMonth.getMonth();
-  const hasEvents = day.events.length > 0;
-  
   // Format the date header
   const dayOfWeek = day.date.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
   const monthName = day.date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
@@ -141,11 +116,14 @@ function CalendarDayCell({ day, width, selectedMonth, onEventClick }: CalendarDa
   const year = day.date.getFullYear();
   
   const dateHeader = `${dayOfWeek}, ${monthName}. ${dateNum}, ${year}`;
+  
+  // Check if this date is in the current month
+  const isCurrentMonth = day.date.getMonth() === selectedMonth.getMonth();
 
   return (
     <div
       className="flex flex-col border border-gray-300 overflow-hidden"
-      style={{ width, minWidth: '60px' }}
+      style={{ width, minWidth: '80px' }}
     >
       {/* Date Header */}
       <div
@@ -159,18 +137,14 @@ function CalendarDayCell({ day, width, selectedMonth, onEventClick }: CalendarDa
       
       {/* Event Images */}
       <div className="flex-1 flex flex-col bg-gray-200">
-        {hasEvents ? (
-          day.events.map((event, idx) => (
-            <EventImage
-              key={event._id}
-              event={event}
-              onClick={() => onEventClick(event)}
-              isMultiple={day.events.length > 1}
-            />
-          ))
-        ) : (
-          <div className="flex-1" />
-        )}
+        {day.events.map((event, idx) => (
+          <EventImage
+            key={event._id}
+            event={event}
+            onClick={() => onEventClick(event)}
+            isMultiple={day.events.length > 1}
+          />
+        ))}
       </div>
     </div>
   );
