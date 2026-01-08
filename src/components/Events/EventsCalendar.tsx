@@ -50,7 +50,7 @@ export default function EventsCalendar({ events, selectedMonth, onEventClick }: 
   }, [events, selectedMonth]);
 
   return (
-    <div className="w-full h-full flex flex-col gap-1">
+    <div className="w-full flex flex-col gap-2">
       {calendar.map((week, weekIndex) => (
         <CalendarWeekRow
           key={weekIndex}
@@ -87,7 +87,7 @@ function CalendarWeekRow({ week, selectedMonth, onEventClick }: CalendarWeekRowP
   const columnWidths = columnSizes.map(size => `${(size / totalSize) * 100}%`);
 
   return (
-    <div className="flex gap-1 flex-1">
+    <div className="flex gap-2">
       {week.days.map((day, dayIndex) => (
         <CalendarDayCell
           key={dayIndex}
@@ -136,7 +136,7 @@ function CalendarDayCell({ day, width, selectedMonth, onEventClick }: CalendarDa
       </div>
       
       {/* Event Images - Only show first image */}
-      <div className="flex-1 flex flex-col gap-1 bg-gray-200 p-1">
+      <div className="flex flex-col gap-2 bg-gray-200 p-2">
         {day.events.map((event, idx) => (
           <EventImage
             key={event._id}
@@ -156,22 +156,22 @@ interface EventImageProps {
 
 function EventImage({ event, onClick }: EventImageProps) {
   const imageUrl = event.image?.asset?.url ? event.image.asset.url : urlFor(event.image).url();
+  const dimensions = event.image?.asset?.metadata?.dimensions;
+  const aspectRatio = dimensions?.aspectRatio || 1;
 
   return (
     <div
-      className="relative cursor-pointer hover:opacity-90 transition-opacity w-full bg-white rounded overflow-hidden shadow-sm"
+      className="relative cursor-pointer hover:opacity-90 transition-opacity w-full bg-white overflow-hidden shadow-sm"
       onClick={onClick}
       style={{
-        minHeight: '150px',
-        maxHeight: '250px',
-        flex: 1,
+        aspectRatio: aspectRatio.toString(),
       }}
     >
       <Image
         src={imageUrl}
         alt={event.title}
         fill
-        className="object-contain"
+        className="object-cover"
         sizes="(max-width: 768px) 100vw, 20vw"
       />
     </div>

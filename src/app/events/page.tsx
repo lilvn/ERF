@@ -92,7 +92,7 @@ export default function EventsPage() {
             />
           </div>
           
-          <div className="flex-1 border-4 border-black p-4 bg-gray-50" style={{ height: '600px' }}>
+          <div className="flex-1 border-4 border-black p-4 bg-gray-50">
             {filteredEvents.length > 0 ? (
               <EventsCalendar
                 events={filteredEvents}
@@ -100,7 +100,7 @@ export default function EventsPage() {
                 onEventClick={handleEventClick}
               />
             ) : (
-              <div className="flex items-center justify-center h-full">
+              <div className="flex items-center justify-center" style={{ minHeight: '400px' }}>
                 <p className="text-gray-500 text-xl">No events this month</p>
               </div>
             )}
