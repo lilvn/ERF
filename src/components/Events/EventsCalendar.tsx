@@ -135,14 +135,13 @@ function CalendarDayCell({ day, width, selectedMonth, onEventClick }: CalendarDa
         {dateHeader}
       </div>
       
-      {/* Event Images */}
-      <div className="flex-1 flex flex-col bg-gray-200">
+      {/* Event Images - Only show first image */}
+      <div className="flex-1 flex flex-col gap-1 bg-gray-200 p-1">
         {day.events.map((event, idx) => (
           <EventImage
             key={event._id}
             event={event}
             onClick={() => onEventClick(event)}
-            isMultiple={day.events.length > 1}
           />
         ))}
       </div>
@@ -153,20 +152,19 @@ function CalendarDayCell({ day, width, selectedMonth, onEventClick }: CalendarDa
 interface EventImageProps {
   event: SanityEvent;
   onClick: () => void;
-  isMultiple: boolean;
 }
 
-function EventImage({ event, onClick, isMultiple }: EventImageProps) {
+function EventImage({ event, onClick }: EventImageProps) {
   const imageUrl = event.image?.asset?.url ? event.image.asset.url : urlFor(event.image).url();
-  const dimensions = event.image?.asset?.metadata?.dimensions;
-  const aspectRatio = dimensions?.aspectRatio || 1;
 
   return (
     <div
-      className="relative cursor-pointer hover:opacity-80 transition-opacity flex-1 w-full"
+      className="relative cursor-pointer hover:opacity-90 transition-opacity w-full bg-white rounded overflow-hidden shadow-sm"
       onClick={onClick}
       style={{
-        minHeight: isMultiple ? '120px' : '200px',
+        minHeight: '150px',
+        maxHeight: '250px',
+        flex: 1,
       }}
     >
       <Image

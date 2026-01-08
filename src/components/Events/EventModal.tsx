@@ -14,6 +14,11 @@ interface EventModalProps {
 export default function EventModal({ event, onClose }: EventModalProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
+  // Reset image index when event changes
+  React.useEffect(() => {
+    setCurrentImageIndex(0);
+  }, [event?._id]);
+
   if (!event) return null;
 
   // Collect all images (main image + additional images)
@@ -57,7 +62,7 @@ export default function EventModal({ event, onClose }: EventModalProps) {
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-          className="bg-white rounded-lg overflow-hidden max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
+          className="bg-white rounded-lg overflow-hidden max-w-5xl w-full max-h-[95vh] overflow-y-auto shadow-2xl relative"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Close Button */}
@@ -69,7 +74,7 @@ export default function EventModal({ event, onClose }: EventModalProps) {
           </button>
 
           {/* Event Image Carousel */}
-          <div className="relative w-full h-[400px] bg-gray-900">
+          <div className="relative w-full bg-black" style={{ height: 'clamp(400px, 60vh, 700px)' }}>
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentImageIndex}
@@ -83,7 +88,7 @@ export default function EventModal({ event, onClose }: EventModalProps) {
                   src={allImages[currentImageIndex]}
                   alt={`${event.title} - Image ${currentImageIndex + 1}`}
                   fill
-                  className="object-cover"
+                  className="object-contain"
                   priority={currentImageIndex === 0}
                 />
               </motion.div>
