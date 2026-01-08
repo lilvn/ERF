@@ -12,7 +12,7 @@ function getClient() {
       projectId,
       dataset,
       apiVersion,
-      useCdn: true,
+      useCdn: false, // Disabled CDN to get fresh data
       perspective: 'published',
     });
   }
