@@ -92,7 +92,7 @@ export default function EventsPage() {
             />
           </div>
           
-          <div className="flex-1 border-4 border-black p-4 bg-gray-50">
+          <div className="flex-1 border-4 border-black bg-white">
             {filteredEvents.length > 0 ? (
               <EventsCalendar
                 events={filteredEvents}
