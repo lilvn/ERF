@@ -98,8 +98,9 @@ export interface SanityEvent {
     };
   }>;
   date: string;
+  endDate?: string;
   description: string;
-  location: 'suydam' | 'bogart';
+  location: 'suydam' | 'bogart' | 'other';
   instagramUrl?: string;
   importedFromInstagram?: boolean;
   postedToDiscord?: boolean;
@@ -143,6 +144,7 @@ export const EVENTS_QUERY = `*[_type == "event" && defined(publishedAt)] | order
     hotspot
   },
   date,
+  endDate,
   description,
   location,
   instagramUrl,
@@ -187,6 +189,7 @@ export const EVENTS_BY_LOCATION_QUERY = `*[_type == "event" && defined(published
     hotspot
   },
   date,
+  endDate,
   description,
   location,
   instagramUrl,
@@ -231,6 +234,7 @@ export const EVENTS_BY_MONTH_QUERY = `*[_type == "event" && defined(publishedAt)
     hotspot
   },
   date,
+  endDate,
   description,
   location,
   instagramUrl,
@@ -275,6 +279,7 @@ export const UPCOMING_EVENTS_QUERY = `*[_type == "event" && defined(publishedAt)
     hotspot
   },
   date,
+  endDate,
   description,
   location,
   instagramUrl,

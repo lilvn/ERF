@@ -49,10 +49,16 @@ export const eventSchema = defineType({
     }),
     defineField({
       name: 'date',
-      title: 'Event Date',
+      title: 'Start Date',
       type: 'datetime',
-      description: 'Date and time of the event',
+      description: 'Start date and time of the event',
       validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'endDate',
+      title: 'End Date',
+      type: 'datetime',
+      description: 'End date for multi-day events (exhibitions, etc.). Leave empty for single-day events.',
     }),
     defineField({
       name: 'description',
@@ -69,8 +75,9 @@ export const eventSchema = defineType({
       description: 'Event location',
       options: {
         list: [
-          { title: 'Suydam', value: 'suydam' },
-          { title: 'Bogart', value: 'bogart' },
+          { title: 'Suydam (349 Suydam St)', value: 'suydam' },
+          { title: 'Bogart (94 Bogart St)', value: 'bogart' },
+          { title: 'Other / Off-site', value: 'other' },
         ],
         layout: 'radio',
       },
