@@ -123,11 +123,11 @@ function CalendarDayCell({ day, width, selectedMonth, onEventClick }: CalendarDa
   return (
     <div
       className="flex flex-col border border-gray-300 overflow-hidden"
-      style={{ width, minWidth: '80px' }}
+      style={{ width }}
     >
       {/* Date Header */}
       <div
-        className={`text-xs font-bold text-center py-1 px-1 ${
+        className={`text-xs font-bold text-center py-1 px-1 whitespace-nowrap ${
           isCurrentMonth ? 'bg-purple-800 text-white' : 'bg-gray-400 text-gray-700'
         }`}
         style={{ fontSize: '0.65rem', lineHeight: '1.1' }}
@@ -163,18 +163,18 @@ function EventImage({ event, onClick, isMultiple }: EventImageProps) {
 
   return (
     <div
-      className="relative cursor-pointer hover:opacity-80 transition-opacity flex-1"
+      className="relative cursor-pointer hover:opacity-80 transition-opacity flex-1 w-full"
       onClick={onClick}
       style={{
-        minHeight: isMultiple ? '100px' : '150px',
+        minHeight: isMultiple ? '120px' : '200px',
       }}
     >
       <Image
         src={imageUrl}
         alt={event.title}
         fill
-        className="object-cover"
-        sizes="(max-width: 768px) 100vw, 33vw"
+        className="object-contain"
+        sizes="(max-width: 768px) 100vw, 20vw"
       />
     </div>
   );
