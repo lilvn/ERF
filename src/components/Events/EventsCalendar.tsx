@@ -128,12 +128,12 @@ function CalendarDayCell({ day, width, selectedMonth, onEventClick, rowHeight }:
 
   return (
     <div
-      className="flex flex-col border-2 border-gray-400 overflow-hidden bg-gray-100"
+      className="flex flex-col border-2 border-gray-400 overflow-hidden"
       style={{ width, height: `${rowHeight}px` }}
     >
       {/* Date Header */}
       <div
-        className={`text-xs font-bold text-center py-1 px-2 whitespace-nowrap flex-shrink-0 ${
+        className={`text-xs font-bold text-center py-2 px-2 whitespace-nowrap flex-shrink-0 ${
           isCurrentMonth ? 'bg-purple-800 text-white' : 'bg-gray-500 text-white'
         }`}
         style={{ fontSize: '0.7rem', lineHeight: '1.2' }}
@@ -141,8 +141,8 @@ function CalendarDayCell({ day, width, selectedMonth, onEventClick, rowHeight }:
         {dateHeader}
       </div>
       
-      {/* Event Images - Only show first image, all same width, stacked vertically */}
-      <div className="flex flex-col gap-2 p-2 flex-1 overflow-auto">
+      {/* Event Images - Fill remaining space */}
+      <div className="flex flex-col gap-1 flex-1">
         {day.events.map((event, idx) => (
           <EventImage
             key={event._id}
@@ -162,22 +162,17 @@ interface EventImageProps {
 
 function EventImage({ event, onClick }: EventImageProps) {
   const imageUrl = event.image?.asset?.url ? event.image.asset.url : urlFor(event.image).url();
-  const dimensions = event.image?.asset?.metadata?.dimensions;
-  const aspectRatio = dimensions?.aspectRatio || 1;
 
   return (
     <div
-      className="relative cursor-pointer hover:opacity-90 transition-opacity w-full flex-shrink-0"
+      className="relative cursor-pointer hover:opacity-90 transition-opacity w-full flex-1"
       onClick={onClick}
-      style={{
-        aspectRatio: aspectRatio.toString(),
-      }}
     >
       <Image
         src={imageUrl}
         alt={event.title}
         fill
-        className="object-contain"
+        className="object-cover"
         sizes="(max-width: 768px) 100vw, 25vw"
       />
     </div>
