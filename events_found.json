@@ -1,0 +1,167 @@
+[
+  {
+    "id": 1,
+    "title": "group critique",
+    "date": "2024-10-27",
+    "time": "6:00 PM",
+    "location": "Suydam",
+    "address": "349 Suydam St. 3L",
+    "description": "Please bring one artwork/project idea to share and discuss. The goal of this critique is to engage with each other's work and offer ideas to push the artwork further. Please bring works/ideas in progress.",
+    "image": "2024-10-24_01-55-01_UTC_1.jpg"
+  },
+  {
+    "id": 2,
+    "title": "Winter Market Open Call",
+    "date": "2026-01",
+    "time": "TBD",
+    "location": "Brooklyn",
+    "address": "Brooklyn, NY",
+    "description": "$50/table - form in bio. Submission deadline: 1.10.26",
+    "image": "2026-01-04_18-03-14_UTC.jpg"
+  },
+  {
+    "id": 3,
+    "title": "Contrary to all the grand proposals",
+    "date": "2026-01-10",
+    "endDate": "2026-02-07",
+    "time": "Opening: 7-10pm",
+    "location": "Suydam",
+    "address": "3rdstory, ErF world, 349 Suydam St. 3R, Brooklyn",
+    "description": "Exhibition featuring Imogen Aukland, Jake Bernstein, Jared Friedman, Eun Yong Lee, Erin O'Flynn, David Thonis. Open Saturdays, Sundays 11am-5pm and by appointment.",
+    "image": "2026-01-03_04-46-52_UTC.jpg"
+  },
+  {
+    "id": 4,
+    "title": "Handmade Rosé Bouquets",
+    "date": "2025-02-01",
+    "time": "11AM-7PM",
+    "location": "Bogart",
+    "address": "94 Bogart Street Brooklyn FL2#212",
+    "description": "Hosted by SEWCIAL CLUB. RSVP on Posh.",
+    "image": "2025-12-29_17-20-44_UTC_1.jpg"
+  },
+  {
+    "id": 5,
+    "title": "LOWER THE HEAVENS - A New Years Special",
+    "date": "2024-12-31",
+    "time": "7:00 PM",
+    "location": "Other",
+    "address": "1 Ingraham St",
+    "description": "All night warehouse party. Live Ball Drop, Champagne Toast, Balloon Drop, Free Coat Check. $40. Featuring @84 A Lana, WORLD KRYSIS, K2. HOUSE/TECHNO/JUNGLE/DISCO",
+    "image": "2025-12-20_20-35-28_UTC.jpg"
+  },
+  {
+    "id": 6,
+    "title": "Next Crit - in person",
+    "date": "2025-12-21",
+    "time": "6:00 PM",
+    "location": "Suydam",
+    "address": "Always at Scenic ERF WORLD, 349 Suydam St 3L",
+    "description": "We will break into small groups. All are welcome! No institution required. Please bring a work in progress for genuine quality feedback!",
+    "image": "2025-12-17_13-57-23_UTC.jpg"
+  },
+  {
+    "id": 7,
+    "title": "RAVEN GREY DESIGNS JEWELRY POP UP",
+    "date": "2025-12-19",
+    "endDate": "2025-12-20",
+    "time": "Fri 5-9pm, Sat 1-7pm",
+    "location": "Bogart",
+    "address": "ERF STUDIOS, 94 BOGART ST, BROOKLYN, NY 11206, 2ND FLOOR",
+    "description": "Jewelry pop-up shop",
+    "image": "2025-12-15_19-43-41_UTC.jpg"
+  },
+  {
+    "id": 8,
+    "title": "DEMO - work by Ryan Fisher",
+    "date": "2024-12-18",
+    "time": "6-9 PM",
+    "location": "Bogart",
+    "address": "94 Bogart Street",
+    "description": "Art exhibition",
+    "image": "2025-12-12_15-44-36_UTC.jpg"
+  },
+  {
+    "id": 9,
+    "title": "M Shimek - FAMILY INHERITANCE",
+    "date": "2025-12-12",
+    "endDate": "2026-01-17",
+    "time": "Opening: 7-10pm",
+    "location": "Bogart",
+    "address": "Pushup Gallery, 94 Bogart",
+    "description": "Art exhibition at Pushup Gallery",
+    "image": "2025-12-04_17-18-18_UTC_1.jpg"
+  },
+  {
+    "id": 10,
+    "title": "Good English Presents An Evening at ERF",
+    "date": "2025-12-05",
+    "time": "7:00/7:30 PM",
+    "location": "Other",
+    "address": "1 Ingraham st Brooklyn",
+    "description": "$15. Featuring Melaina Kol, People I Love (singles release), Avsha",
+    "image": "2025-12-01_20-46-58_UTC.jpg"
+  },
+  {
+    "id": 11,
+    "title": "Officially BLACK FRIDAY IS HERE!",
+    "date": "2025-11-28",
+    "endDate": "2025-11-30",
+    "time": "1-7 PM",
+    "location": "Bogart",
+    "address": "SEWCIAL CLUB, 94 BOGART STREET BK NY #212",
+    "description": "Exclusive deals for EARLY BIRDS. $5 PILE, $15 RACK, 25% OFF (REGULAR PRICED ITEMS)",
+    "image": "2025-11-28_00-15-51_UTC.jpg"
+  },
+  {
+    "id": 12,
+    "title": "ART MARKET & LIVE SHOWCASE",
+    "date": "2024-11-17",
+    "time": "4-9 PM",
+    "location": "Suydam",
+    "address": "ErF World, 349 Suydam St. 3L",
+    "description": "Vendor Sign up. Free Admission. LIVE SCREENPRINTING | LIVE 3D SCANNING | LIVE PHOTOGRAPHY | LIVE 3D PRINTING. CLOTHING | JEWELRY | COFFEE | CROCHET | PAINTINGS | PRINTS | FIGURINES | PLUSHIES | TATTOOS",
+    "image": "2024-11-11_23-29-44_UTC.jpg"
+  },
+  {
+    "id": 13,
+    "title": "Beneath Asphalt and even further down",
+    "date": "2024-11-15",
+    "endDate": "2024-11-30",
+    "time": "Opening: 6-8pm",
+    "location": "Suydam",
+    "address": "349 Suydamn St, 3L, Brooklyn, NY",
+    "description": "Works by Georgina Arroyo",
+    "image": "2024-10-30_01-24-23_UTC.jpg"
+  },
+  {
+    "id": 14,
+    "title": "Pumpkin Carving & Costume Contest",
+    "date": "2024-10-24",
+    "time": "3-7 PM",
+    "location": "Suydam",
+    "address": "ErF World, 349 Suydam st",
+    "description": "Halloween event with pumpkin carving and costume contest",
+    "image": "2024-10-09_15-22-46_UTC.jpg"
+  },
+  {
+    "id": 21,
+    "title": "Vinyasa Yoga & Breath Work",
+    "date": "2024-12-21",
+    "time": "12:00 PM",
+    "location": "Suydam",
+    "address": "ERF WORLD, 349 SUYDAM ST",
+    "description": "Ercomia Presents Vinyasa Yoga & Breath Work with Ali G & Marisol Vibracion",
+    "image": "2024-11-26_16-20-00_UTC.jpg"
+  },
+  {
+    "id": 22,
+    "title": "one two twi light",
+    "date": "2024-11-21",
+    "time": "7:00 PM",
+    "location": "Suydam",
+    "address": "349 Suydam St. 3L, Brooklyn, NY",
+    "description": "A performance by Anna Victoria Regner",
+    "image": "2024-11-03_15-19-58_UTC.jpg"
+  }
+]
