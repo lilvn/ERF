@@ -50,7 +50,7 @@ export default function EventsCalendar({ events, selectedMonth, onEventClick }: 
   }, [events, selectedMonth]);
 
   return (
-    <div className="w-full flex flex-col gap-3 p-4">
+    <div className="w-full flex flex-col gap-2">
       {calendar.map((week, weekIndex) => (
         <CalendarWeekRow
           key={weekIndex}
@@ -71,19 +71,18 @@ interface CalendarWeekRowProps {
 
 function CalendarWeekRow({ week, selectedMonth, onEventClick }: CalendarWeekRowProps) {
   // Set a consistent row height and calculate column widths based on aspect ratios
-  const ROW_HEIGHT = 450; // Fixed height for all rows in pixels
+  const ROW_HEIGHT = 400; // Fixed height for all rows in pixels
   
   const columnSizes = useMemo(() => {
     return week.days.map(day => {
-      if (day.events.length === 0) return 1;
-      
-      // For both single and multiple events, use the widest aspect ratio
+      // Get the widest aspect ratio for this day (if multiple events)
       const aspectRatios = day.events.map(event => {
         const dimensions = event.image?.asset?.metadata?.dimensions;
         return dimensions?.aspectRatio || 1;
       });
       
-      return Math.max(...aspectRatios);
+      // Return the aspect ratio (width will be calculated as height * aspectRatio)
+      return Math.max(...aspectRatios, 1);
     });
   }, [week]);
   
@@ -91,7 +90,7 @@ function CalendarWeekRow({ week, selectedMonth, onEventClick }: CalendarWeekRowP
   const columnWidths = columnSizes.map(size => `${(size / totalSize) * 100}%`);
 
   return (
-    <div className="flex gap-3" style={{ height: `${ROW_HEIGHT}px` }}>
+    <div className="flex gap-2" style={{ height: `${ROW_HEIGHT}px` }}>
       {week.days.map((day, dayIndex) => (
         <CalendarDayCell
           key={dayIndex}
@@ -126,28 +125,33 @@ function CalendarDayCell({ day, width, selectedMonth, onEventClick, rowHeight }:
   // Check if this date is in the current month
   const isCurrentMonth = day.date.getMonth() === selectedMonth.getMonth();
 
+  const headerHeight = 30; // Approximate header height
+  const availableHeight = rowHeight - headerHeight - 16; // Subtract header and padding (p-2 = 8px top + 8px bottom)
+
   return (
     <div
-      className="flex flex-col border-2 border-gray-400 overflow-hidden"
+      className="flex flex-col border border-gray-300 overflow-hidden"
       style={{ width, height: `${rowHeight}px` }}
     >
       {/* Date Header */}
       <div
-        className={`text-xs font-bold text-center py-2 px-2 whitespace-nowrap flex-shrink-0 ${
-          isCurrentMonth ? 'bg-purple-800 text-white' : 'bg-gray-500 text-white'
+        className={`text-xs font-bold text-center py-1 px-1 whitespace-nowrap flex-shrink-0 ${
+          isCurrentMonth ? 'bg-purple-800 text-white' : 'bg-gray-400 text-gray-700'
         }`}
-        style={{ fontSize: '0.7rem', lineHeight: '1.2' }}
+        style={{ fontSize: '0.65rem', lineHeight: '1.1', height: `${headerHeight}px` }}
       >
         {dateHeader}
       </div>
       
-      {/* Event Images - Fill remaining space */}
-      <div className="flex flex-col flex-1 overflow-hidden">
+      {/* Event Images - Only show first image */}
+      <div className="flex flex-col gap-2 bg-gray-200 p-2 flex-1">
         {day.events.map((event, idx) => (
           <EventImage
             key={event._id}
             event={event}
             onClick={() => onEventClick(event)}
+            availableHeight={availableHeight}
+            eventCount={day.events.length}
           />
         ))}
       </div>
@@ -158,22 +162,34 @@ function CalendarDayCell({ day, width, selectedMonth, onEventClick, rowHeight }:
 interface EventImageProps {
   event: SanityEvent;
   onClick: () => void;
+  availableHeight: number;
+  eventCount: number;
 }
 
-function EventImage({ event, onClick }: EventImageProps) {
+function EventImage({ event, onClick, availableHeight, eventCount }: EventImageProps) {
   const imageUrl = event.image?.asset?.url ? event.image.asset.url : urlFor(event.image).url();
+  const dimensions = event.image?.asset?.metadata?.dimensions;
+  const aspectRatio = dimensions?.aspectRatio || 1;
+  
+  // Calculate height per image (divide available space minus gaps)
+  const gapSize = (eventCount - 1) * 8; // 8px gap between images
+  const imageHeight = (availableHeight - gapSize) / eventCount;
 
   return (
     <div
-      className="relative cursor-pointer hover:opacity-90 transition-opacity w-full flex-1 min-h-0"
+      className="relative cursor-pointer hover:opacity-90 transition-opacity w-full bg-white overflow-hidden shadow-sm flex-shrink-0"
       onClick={onClick}
+      style={{
+        height: `${imageHeight}px`,
+        aspectRatio: aspectRatio.toString(),
+      }}
     >
       <Image
         src={imageUrl}
         alt={event.title}
         fill
         className="object-cover"
-        sizes="(max-width: 768px) 100vw, 25vw"
+        sizes="(max-width: 768px) 100vw, 20vw"
       />
     </div>
   );
