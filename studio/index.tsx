@@ -7,7 +7,7 @@ const root = createRoot(rootElement!)
 
 root.render(
   <StudioProvider config={config}>
-    <Studio />
+    <Studio config={config} />
   </StudioProvider>
 )
 
