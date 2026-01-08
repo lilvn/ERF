@@ -189,18 +189,16 @@ export default function EventModal({ event, onClose }: EventModalProps) {
               {event.description}
             </p>
 
-            {/* Instagram Button */}
-            {event.instagramUrl && (
-              <a
-                href={event.instagramUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 text-white font-semibold px-6 py-3 rounded-lg hover:opacity-90 transition-opacity"
-              >
-                <Instagram size={20} />
-                View on Instagram
-              </a>
-            )}
+            {/* Instagram Button - Always show */}
+            <a
+              href={event.instagramUrl || 'https://www.instagram.com/erf.nyc/'}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 text-white font-semibold px-6 py-3 rounded-lg hover:opacity-90 transition-opacity"
+            >
+              <Instagram size={20} />
+              View on Instagram
+            </a>
           </div>
         </motion.div>
       </motion.div>
