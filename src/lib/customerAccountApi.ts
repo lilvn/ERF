@@ -133,6 +133,7 @@ export async function getCustomerData(accessToken: string) {
                 edges {
                   node {
                     title
+                    variantTitle
                     quantity
                   }
                 }

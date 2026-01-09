@@ -103,6 +103,7 @@ export async function GET(request: NextRequest) {
         createdAt: edge.node.processedAt || new Date().toISOString(),
         items: (edge.node.lineItems?.edges || []).map((item: any) => ({
           title: item.node.title || 'Unknown',
+          variantTitle: item.node.variantTitle || null,
           quantity: item.node.quantity || 0,
         })),
       })),

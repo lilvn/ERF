@@ -21,6 +21,7 @@ interface Customer {
     createdAt: string;
     items: Array<{
       title: string;
+      variantTitle: string | null;
       quantity: number;
     }>;
   }>;

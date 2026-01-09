@@ -144,7 +144,10 @@ export default function AccountPage() {
                   <div className="space-y-2">
                     {order.items.map((item, idx) => (
                       <div key={idx} className="flex justify-between text-sm">
-                        <span className="text-gray-700">{item.title}</span>
+                        <span className="text-gray-700">
+                          {item.title}
+                          {item.variantTitle && <span className="text-gray-500"> - {item.variantTitle}</span>}
+                        </span>
                         <span className="text-gray-600">Qty: {item.quantity}</span>
                       </div>
                     ))}
