@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState } from 'react';
+import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useAnaglyph } from '@/context/AnaglyphContext';
@@ -23,62 +23,45 @@ export const MENU_ITEMS = [
   { name: 'EVENTS', path: '/events', icon: '/Menu/MenuWheel/EVENTS.webp' },
 ];
 
-const MenuItem = ({ item, index, total, onClose, selectedItem, onItemClick }: { 
-  item: MenuItem; 
-  index: number; 
-  total: number;
-  onClose: (item: MenuItem) => void;
-  selectedItem: MenuItem | null;
-  onItemClick: (item: MenuItem) => void;
-}) => {
-  const { getCombinedStyle } = useAnaglyph();
-  const itemRef = useRef<HTMLDivElement>(null);
+// Calculate wheel position for a given index
+export const getWheelPosition = (index: number, total: number) => {
   const angle = (index / total) * Math.PI * 2;
   const radius = 280;
   const x = Math.cos(angle) * radius;
   const y = Math.sin(angle) * radius;
+  return { x, y };
+};
+
+const MenuItem = ({ item, index, total, onClose, selectedItem, onItemClick }: { 
+  item: MenuItem; 
+  index: number; 
+  total: number;
+  onClose: (item: MenuItem, index: number) => void;
+  selectedItem: MenuItem | null;
+  onItemClick: (item: MenuItem) => void;
+}) => {
+  const { getCombinedStyle } = useAnaglyph();
+  const { x, y } = getWheelPosition(index, total);
 
   const isSelected = selectedItem?.name === item.name;
-
-  // Calculate the target position for animation to top-left
-  const getExitAnimation = () => {
-    if (isSelected) {
-      // Animate to top-left corner
-      // Current position is center of screen + offset, target is top-left
-      const currentX = window.innerWidth / 2 + x - 80;
-      const currentY = window.innerHeight / 2 + y - 80;
-      const targetX = 24;
-      const targetY = 24;
-      
-      return {
-        x: targetX - currentX,
-        y: targetY - currentY,
-        scale: 0.5,
-        opacity: 1,
-      };
-    }
-    // Non-selected items fade out
-    return { opacity: 0, scale: 0 };
-  };
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     onItemClick(item);
-    // Small delay to let the exit animation start before navigation
+    // Small delay to let the state update
     setTimeout(() => {
-      onClose(item);
+      onClose(item, index);
     }, 50);
   };
 
   return (
     <motion.div
-      ref={itemRef}
       initial={{ opacity: 0, scale: 0 }}
       animate={{ opacity: 1, scale: 1 }}
-      exit={getExitAnimation()}
+      exit={{ opacity: 0, scale: 0 }}
       transition={{ 
-        duration: isSelected ? 0.4 : 0.15,
-        ease: isSelected ? [0.4, 0, 0.2, 1] : [0.34, 1.56, 0.64, 1]
+        duration: 0.15,
+        ease: [0.34, 1.56, 0.64, 1]
       }}
       style={{ 
         position: 'absolute',
@@ -86,6 +69,8 @@ const MenuItem = ({ item, index, total, onClose, selectedItem, onItemClick }: {
         top: '50%',
         marginLeft: x - 80,
         marginTop: y - 80,
+        // Hide the selected item since we'll render a traveling version
+        opacity: isSelected ? 0 : undefined,
         ...getCombinedStyle('foreground'),
       }}
       className="pointer-events-auto"
@@ -106,7 +91,7 @@ const MenuItem = ({ item, index, total, onClose, selectedItem, onItemClick }: {
   );
 };
 
-export const MenuWheel = ({ isOpen, onClose }: { isOpen: boolean; onClose: (item?: MenuItem) => void }) => {
+export const MenuWheel = ({ isOpen, onClose }: { isOpen: boolean; onClose: (item?: MenuItem, index?: number) => void }) => {
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
 
   // Reset selected item when menu opens
