@@ -6,7 +6,6 @@ import { SanityEvent, urlFor } from '@/lib/sanity';
 
 interface EventsCalendarProps {
   events: SanityEvent[];
-  selectedMonth: Date;
   onEventClick: (event: SanityEvent) => void;
 }
 
@@ -50,30 +49,19 @@ function isMultiDay(event: SanityEvent): boolean {
   return Boolean(event.endDate);
 }
 
-export default function EventsCalendar({ events, selectedMonth, onEventClick }: EventsCalendarProps) {
-  // Filter events by selected month
-  const monthEvents = events.filter(event => {
-    const eventDate = new Date(event.date);
-    return eventDate.getMonth() === selectedMonth.getMonth() && 
-           eventDate.getFullYear() === selectedMonth.getFullYear();
-  });
-
-  // Sort by date
-  const sortedEvents = [...monthEvents].sort((a, b) => 
-    new Date(a.date).getTime() - new Date(b.date).getTime()
-  );
-
-  if (sortedEvents.length === 0) {
+export default function EventsCalendar({ events, onEventClick }: EventsCalendarProps) {
+  // Events are already filtered by the parent - just display them
+  if (events.length === 0) {
     return (
       <div className="flex items-center justify-center py-20">
-        <p className="text-gray-500 text-xl">No events this month</p>
+        <p className="text-gray-500 text-xl">No events to display</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-4">
-      {sortedEvents.map((event) => (
+      {events.map((event) => (
         <EventCard 
           key={event._id} 
           event={event} 

@@ -45,18 +45,12 @@ export default function EventsPage() {
         .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     } else if (selectedPastMonth) {
       const { year, month } = selectedPastMonth;
-      console.log('Filtering for:', { year, month });
-      console.log('Total events:', allEvents.length);
-      
-      const filtered = allEvents.filter(event => {
-        const eventDate = new Date(event.date);
-        const matches = eventDate.getFullYear() === year && eventDate.getMonth() === month;
-        if (matches) console.log('Match:', event.title, event.date);
-        return matches;
-      });
-      
-      console.log('Filtered count:', filtered.length);
-      return filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      return allEvents
+        .filter(event => {
+          const eventDate = new Date(event.date);
+          return eventDate.getFullYear() === year && eventDate.getMonth() === month;
+        })
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     }
     return [];
   }, [allEvents, viewMode, selectedPastMonth]);
@@ -77,7 +71,6 @@ export default function EventsPage() {
   };
 
   const handlePastMonthSelect = (year: number, month: number) => {
-    console.log('Selected past month:', { year, month });
     setViewMode('past');
     setSelectedPastMonth({ year, month });
     setDropdownOpen(false);
@@ -194,7 +187,6 @@ export default function EventsPage() {
         {filteredEvents.length > 0 ? (
           <EventsCalendar
             events={filteredEvents}
-            selectedMonth={new Date()}
             onEventClick={handleEventClick}
           />
         ) : (
