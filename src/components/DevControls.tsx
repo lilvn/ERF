@@ -12,11 +12,6 @@ export const DevControls = () => {
   const panelRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
 
-  // Only show on homepage
-  if (pathname !== '/') {
-    return null;
-  }
-
   // Close when clicking outside
   useEffect(() => {
     if (!isOpen) return;
@@ -30,6 +25,11 @@ export const DevControls = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isOpen]);
+
+  // Only show on homepage
+  if (pathname !== '/') {
+    return null;
+  }
 
   const handleToggle = () => {
     setIsOpen(!isOpen);
@@ -125,4 +125,3 @@ export const DevControls = () => {
     </div>
   );
 };
-
