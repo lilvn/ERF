@@ -91,9 +91,9 @@ export default function EventsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-4xl mx-auto px-4 py-12">
-          <h1 className="text-4xl font-bold text-center mb-12 text-gray-900">EVENTS</h1>
+      <div className="min-h-screen bg-white">
+        <div className="max-w-6xl mx-auto px-4 pt-24 pb-12">
+          <h1 className="text-4xl font-bold text-center mb-12 text-black">EVENTS</h1>
           <div className="flex items-center justify-center py-20">
             <div className="animate-pulse text-gray-500">Loading events...</div>
           </div>
@@ -103,20 +103,20 @@ export default function EventsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto px-4 py-12">
+    <div className="min-h-screen bg-white">
+      <div className="max-w-6xl mx-auto px-4 pt-24 pb-12">
         {/* Header */}
-        <h1 className="text-4xl font-bold text-center mb-8 text-gray-900">EVENTS</h1>
+        <h1 className="text-4xl font-bold text-center mb-8 text-black">EVENTS</h1>
 
         {/* Navigation Buttons */}
         <div className="flex justify-center gap-4 mb-8">
           {/* Upcoming Button */}
           <button
             onClick={handleUpcomingClick}
-            className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+            className={`px-6 py-2 font-medium transition-all border ${
               viewMode === 'upcoming'
-                ? 'bg-purple-600 text-white shadow-lg'
-                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                ? 'bg-black text-white border-black'
+                : 'bg-white text-black border-gray-300 hover:border-black'
             }`}
           >
             Upcoming
@@ -126,15 +126,15 @@ export default function EventsPage() {
           <div className="relative">
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
-              className={`px-6 py-3 rounded-lg font-semibold transition-all flex items-center gap-2 ${
+              className={`px-6 py-2 font-medium transition-all border flex items-center gap-2 ${
                 viewMode === 'past'
-                  ? 'bg-purple-600 text-white shadow-lg'
-                  : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                  ? 'bg-black text-white border-black'
+                  : 'bg-white text-black border-gray-300 hover:border-black'
               }`}
             >
               {getPastButtonText()}
               <ChevronDown 
-                size={18} 
+                size={16} 
                 className={`transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} 
               />
             </button>
@@ -142,7 +142,7 @@ export default function EventsPage() {
             {/* Dropdown Menu */}
             {dropdownOpen && (
               <div 
-                className="absolute top-full left-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50 max-h-80 overflow-y-auto"
+                className="absolute top-full left-0 mt-1 w-56 bg-white border border-gray-300 py-1 z-50 max-h-80 overflow-y-auto shadow-lg"
                 onClick={(e) => e.stopPropagation()}
               >
                 {pastMonths.length > 0 ? (
@@ -161,7 +161,7 @@ export default function EventsPage() {
                           handlePastMonthSelect(year, month);
                         }}
                         className={`w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors flex justify-between items-center ${
-                          isSelected ? 'bg-purple-50 text-purple-700' : 'text-gray-700'
+                          isSelected ? 'bg-gray-100 font-medium' : 'text-gray-700'
                         }`}
                       >
                         <span>{label}</span>
@@ -178,12 +178,12 @@ export default function EventsPage() {
         </div>
 
         {/* Events Count */}
-        <div className="text-center mb-6 text-gray-500">
+        <div className="text-center mb-6 text-gray-500 text-sm">
           {filteredEvents.length} event{filteredEvents.length !== 1 ? 's' : ''}
           {viewMode === 'upcoming' && ' coming up'}
         </div>
 
-        {/* Events List */}
+        {/* Events Calendar Grid */}
         {filteredEvents.length > 0 ? (
           <EventsCalendar
             events={filteredEvents}

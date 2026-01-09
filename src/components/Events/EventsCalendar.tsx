@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import Image from 'next/image';
 import { SanityEvent, urlFor } from '@/lib/sanity';
 
@@ -9,13 +9,13 @@ interface EventsCalendarProps {
   onEventClick: (event: SanityEvent) => void;
 }
 
-// Group events by month
-function groupEventsByMonth(events: SanityEvent[]): Map<string, SanityEvent[]> {
+// Group events by date
+function groupEventsByDate(events: SanityEvent[]): Map<string, SanityEvent[]> {
   const groups = new Map<string, SanityEvent[]>();
   
   events.forEach(event => {
     const date = new Date(event.date);
-    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    const key = date.toISOString().split('T')[0]; // YYYY-MM-DD
     const existing = groups.get(key) || [];
     groups.set(key, [...existing, event]);
   });
@@ -23,34 +23,27 @@ function groupEventsByMonth(events: SanityEvent[]): Map<string, SanityEvent[]> {
   return groups;
 }
 
-// Format date range for multi-day events
-function formatDateRange(startDate: string, endDate?: string): string {
-  const start = new Date(startDate);
-  const options: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
-  
-  if (endDate) {
-    const end = new Date(endDate);
-    const startStr = start.toLocaleDateString('en-US', options);
-    const endStr = end.toLocaleDateString('en-US', { ...options, year: 'numeric' });
-    return `${startStr} - ${endStr}`;
-  }
-  
-  return start.toLocaleDateString('en-US', { ...options, year: 'numeric' });
-}
-
-// Format time
-function formatTime(dateStr: string): string {
+// Format date for display
+function formatDateHeader(dateStr: string): { day: number; weekday: string; month: string } {
   const date = new Date(dateStr);
-  return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-}
-
-// Check if event is multi-day
-function isMultiDay(event: SanityEvent): boolean {
-  return Boolean(event.endDate);
+  return {
+    day: date.getDate(),
+    weekday: date.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase(),
+    month: date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase(),
+  };
 }
 
 export default function EventsCalendar({ events, onEventClick }: EventsCalendarProps) {
-  // Events are already filtered by the parent - just display them
+  // Group events by date
+  const eventsByDate = useMemo(() => {
+    const grouped = groupEventsByDate(events);
+    // Sort by date
+    const sortedEntries = Array.from(grouped.entries()).sort((a, b) => 
+      new Date(a[0]).getTime() - new Date(b[0]).getTime()
+    );
+    return sortedEntries;
+  }, [events]);
+
   if (events.length === 0) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -60,96 +53,76 @@ export default function EventsCalendar({ events, onEventClick }: EventsCalendarP
   }
 
   return (
-    <div className="space-y-4">
-      {events.map((event) => (
-        <EventCard 
-          key={event._id} 
-          event={event} 
-          onClick={() => onEventClick(event)} 
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+      {eventsByDate.map(([dateStr, dateEvents]) => (
+        <DateCell
+          key={dateStr}
+          dateStr={dateStr}
+          events={dateEvents}
+          onEventClick={onEventClick}
         />
       ))}
     </div>
   );
 }
 
-interface EventCardProps {
+interface DateCellProps {
+  dateStr: string;
+  events: SanityEvent[];
+  onEventClick: (event: SanityEvent) => void;
+}
+
+function DateCell({ dateStr, events, onEventClick }: DateCellProps) {
+  const { day, weekday, month } = formatDateHeader(dateStr);
+  
+  return (
+    <div className="flex flex-col border border-gray-300 bg-white overflow-hidden">
+      {/* Date Header */}
+      <div className="bg-black text-white px-2 py-1 text-center">
+        <div className="text-xs font-medium">{weekday}</div>
+        <div className="text-xl font-bold leading-tight">{day}</div>
+        <div className="text-xs">{month}</div>
+      </div>
+      
+      {/* Events Stack */}
+      <div className="flex flex-col gap-1 p-1">
+        {events.map((event) => (
+          <EventThumbnail
+            key={event._id}
+            event={event}
+            onClick={() => onEventClick(event)}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+interface EventThumbnailProps {
   event: SanityEvent;
   onClick: () => void;
 }
 
-function EventCard({ event, onClick }: EventCardProps) {
+function EventThumbnail({ event, onClick }: EventThumbnailProps) {
   const imageUrl = event.image?.asset?.url || urlFor(event.image).url();
-  const multiDay = isMultiDay(event);
-  const eventDate = new Date(event.date);
   
   return (
     <div
       onClick={onClick}
-      className="group cursor-pointer bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-200 flex"
+      className="relative aspect-square cursor-pointer overflow-hidden group"
     >
-      {/* Date Column */}
-      <div className={`flex-shrink-0 w-20 flex flex-col items-center justify-center p-3 ${
-        multiDay ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-900'
-      }`}>
-        <span className="text-sm font-medium uppercase">
-          {eventDate.toLocaleDateString('en-US', { weekday: 'short' })}
-        </span>
-        <span className="text-3xl font-bold">
-          {eventDate.getDate()}
-        </span>
-        <span className="text-xs uppercase">
-          {eventDate.toLocaleDateString('en-US', { month: 'short' })}
-        </span>
-        {multiDay && (
-          <span className="text-xs mt-1 opacity-80">Multi-day</span>
-        )}
-      </div>
-
-      {/* Image */}
-      <div className="relative w-32 h-32 flex-shrink-0 bg-gray-200">
-        <Image
-          src={imageUrl}
-          alt={event.title}
-          fill
-          className="object-cover group-hover:scale-105 transition-transform duration-200"
-          sizes="128px"
-        />
-      </div>
-
-      {/* Content */}
-      <div className="flex-1 p-4 flex flex-col justify-center min-w-0">
-        <h3 className="font-bold text-lg text-gray-900 truncate group-hover:text-purple-600 transition-colors">
+      <Image
+        src={imageUrl}
+        alt={event.title}
+        fill
+        className="object-cover transition-transform duration-200 group-hover:scale-105"
+        sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
+      />
+      {/* Hover overlay with title */}
+      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors flex items-end">
+        <div className="w-full p-2 text-white text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity truncate">
           {event.title}
-        </h3>
-        
-        <div className="flex items-center gap-3 mt-1 text-sm text-gray-600">
-          {multiDay ? (
-            <span className="font-medium text-purple-600">
-              {formatDateRange(event.date, event.endDate)}
-            </span>
-          ) : (
-            <span>{formatTime(event.date)}</span>
-          )}
-          
-          <span className="text-gray-400">•</span>
-          
-          <span className="capitalize">
-            {event.location === 'suydam' ? '349 Suydam St' : 
-             event.location === 'bogart' ? '94 Bogart St' : 
-             'Off-site'}
-          </span>
         </div>
-
-        <p className="text-sm text-gray-500 mt-2 line-clamp-2">
-          {event.description}
-        </p>
-      </div>
-
-      {/* Arrow indicator */}
-      <div className="flex items-center pr-4 text-gray-400 group-hover:text-purple-600 transition-colors">
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-        </svg>
       </div>
     </div>
   );

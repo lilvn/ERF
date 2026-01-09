@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { useAnaglyph } from '@/context/AnaglyphContext';
 import { GearAnimation } from './GearAnimation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,6 +10,12 @@ export const DevControls = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { activeFilter, setActiveFilter } = useAnaglyph();
   const panelRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
+
+  // Only show on homepage
+  if (pathname !== '/') {
+    return null;
+  }
 
   // Close when clicking outside
   useEffect(() => {

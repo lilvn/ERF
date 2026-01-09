@@ -4,31 +4,34 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { SanityEvent, urlFor } from '@/lib/sanity';
-import { X, ChevronLeft, ChevronRight, Instagram, MapPin, Calendar, Clock } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface EventModalProps {
   event: SanityEvent | null;
   onClose: () => void;
 }
 
-// Format date range for multi-day events
-function formatDateRange(startDate: string, endDate?: string): string {
-  const start = new Date(startDate);
-  const options: Intl.DateTimeFormatOptions = { 
+// Format date for display
+function formatDate(dateStr: string): string {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('en-US', { 
     weekday: 'long', 
     month: 'long', 
     day: 'numeric',
     year: 'numeric'
-  };
-  
+  });
+}
+
+// Format date range for multi-day events
+function formatDateRange(startDate: string, endDate?: string): string {
   if (endDate) {
+    const start = new Date(startDate);
     const end = new Date(endDate);
-    const startStr = start.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-    const endStr = end.toLocaleDateString('en-US', options);
+    const startStr = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const endStr = end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     return `${startStr} - ${endStr}`;
   }
-  
-  return start.toLocaleDateString('en-US', options);
+  return formatDate(startDate);
 }
 
 // Format time
@@ -41,11 +44,11 @@ function formatTime(dateStr: string): string {
 function getLocationDisplay(location: string): string {
   switch (location) {
     case 'suydam':
-      return '349 Suydam St, Brooklyn, NY';
+      return '349 Suydam St, Brooklyn';
     case 'bogart':
-      return '94 Bogart St, Brooklyn, NY';
+      return '94 Bogart St, Brooklyn';
     default:
-      return 'See description for location';
+      return 'See description';
   }
 }
 
@@ -87,19 +90,11 @@ export default function EventModal({ event, onClose }: EventModalProps) {
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-          className="bg-white rounded-xl overflow-hidden max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
+          className="bg-white overflow-hidden max-w-5xl w-full max-h-[85vh] shadow-2xl flex flex-col md:flex-row"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Close Button */}
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 z-20 bg-black/50 hover:bg-black/70 rounded-full p-2 transition-colors"
-          >
-            <X size={20} className="text-white" />
-          </button>
-
-          {/* Image Carousel */}
-          <div className="relative w-full aspect-square bg-black">
+          {/* Left Side - Image */}
+          <div className="relative w-full md:w-1/2 aspect-square md:aspect-auto md:h-auto bg-black flex-shrink-0">
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentImageIndex}
@@ -107,7 +102,7 @@ export default function EventModal({ event, onClose }: EventModalProps) {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
-                className="relative w-full h-full"
+                className="relative w-full h-full min-h-[300px] md:min-h-full"
               >
                 <Image
                   src={allImages[currentImageIndex]}
@@ -124,79 +119,77 @@ export default function EventModal({ event, onClose }: EventModalProps) {
               <>
                 <button
                   onClick={handlePrevImage}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors"
+                  className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-black rounded-full p-1 transition-colors"
                 >
-                  <ChevronLeft size={24} />
+                  <ChevronLeft size={20} />
                 </button>
                 <button
                   onClick={handleNextImage}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-black rounded-full p-1 transition-colors"
                 >
-                  <ChevronRight size={24} />
+                  <ChevronRight size={20} />
                 </button>
                 
-                {/* Dot Indicators */}
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                  {allImages.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(index); }}
-                      className={`w-2 h-2 rounded-full transition-all ${
-                        index === currentImageIndex ? 'bg-white w-4' : 'bg-white/50'
-                      }`}
-                    />
-                  ))}
+                {/* Image Counter */}
+                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/70 text-white text-xs px-2 py-1">
+                  {currentImageIndex + 1} / {allImages.length}
                 </div>
               </>
             )}
           </div>
 
-          {/* Event Details */}
-          <div className="p-6">
-            {/* Multi-day badge */}
-            {isMultiDay && (
-              <span className="inline-block bg-purple-600 text-white text-xs font-semibold px-3 py-1 rounded-full mb-3">
-                Multi-Day Event
-              </span>
-            )}
-            
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+          {/* Right Side - Info */}
+          <div className="flex-1 p-6 flex flex-col overflow-y-auto">
+            {/* Close Button */}
+            <button
+              onClick={onClose}
+              className="absolute top-3 right-3 bg-white hover:bg-gray-100 border border-gray-300 rounded-full p-1 transition-colors z-10"
+            >
+              <X size={18} className="text-black" />
+            </button>
+
+            {/* Title */}
+            <h2 className="text-xl md:text-2xl font-bold text-black mb-4 pr-8">
               {event.title}
             </h2>
 
-            {/* Event Info */}
-            <div className="space-y-3 mb-6">
-              <div className="flex items-center gap-3 text-gray-700">
-                <Calendar size={18} className="text-purple-600 flex-shrink-0" />
-                <span>{formatDateRange(event.date, event.endDate)}</span>
+            {/* Event Details */}
+            <div className="space-y-2 mb-4 text-sm">
+              <div className="flex items-start gap-2">
+                <span className="font-semibold text-black w-16">Date:</span>
+                <span className="text-gray-700">
+                  {isMultiDay ? formatDateRange(event.date, event.endDate) : formatDate(event.date)}
+                </span>
               </div>
               
               {!isMultiDay && (
-                <div className="flex items-center gap-3 text-gray-700">
-                  <Clock size={18} className="text-purple-600 flex-shrink-0" />
-                  <span>{formatTime(event.date)}</span>
+                <div className="flex items-start gap-2">
+                  <span className="font-semibold text-black w-16">Time:</span>
+                  <span className="text-gray-700">{formatTime(event.date)}</span>
                 </div>
               )}
               
-              <div className="flex items-center gap-3 text-gray-700">
-                <MapPin size={18} className="text-purple-600 flex-shrink-0" />
-                <span>{getLocationDisplay(event.location)}</span>
+              <div className="flex items-start gap-2">
+                <span className="font-semibold text-black w-16">Location:</span>
+                <span className="text-gray-700">{getLocationDisplay(event.location)}</span>
               </div>
             </div>
 
             {/* Description */}
-            <p className="text-gray-600 leading-relaxed mb-6">
+            <p className="text-gray-600 text-sm leading-relaxed flex-1 mb-4">
               {event.description}
             </p>
 
-            {/* Instagram Button - Always show */}
+            {/* Instagram Button */}
             <a
               href={event.instagramUrl || 'https://www.instagram.com/erf.nyc/'}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 text-white font-semibold px-6 py-3 rounded-lg hover:opacity-90 transition-opacity"
+              className="inline-flex items-center justify-center gap-2 bg-black text-white font-medium px-4 py-2 hover:bg-gray-800 transition-colors text-sm"
             >
-              <Instagram size={20} />
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+              </svg>
               View on Instagram
             </a>
           </div>
