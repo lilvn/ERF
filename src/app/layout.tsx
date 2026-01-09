@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { AnaglyphProvider } from "@/context/AnaglyphContext";
 import { CustomerAuthProvider } from "@/context/CustomerAuthContext";
+import { CartProvider } from "@/context/CartContext";
 import { Menu } from "@/components/Menu";
 import { DevControls } from "@/components/DevControls";
 import { SVGFilters } from "@/components/SVGFilters";
@@ -24,14 +25,16 @@ export default function RootLayout({
         <ThemeProvider>
           <AnaglyphProvider>
             <CustomerAuthProvider>
-              <Preloader>
-                <SVGFilters />
-                <Menu />
-                <main id="main-content" className="relative min-h-screen">
-                  {children}
-                </main>
-                <DevControls />
-              </Preloader>
+              <CartProvider>
+                <Preloader>
+                  <SVGFilters />
+                  <Menu />
+                  <main id="main-content" className="relative min-h-screen">
+                    {children}
+                  </main>
+                  <DevControls />
+                </Preloader>
+              </CartProvider>
             </CustomerAuthProvider>
           </AnaglyphProvider>
         </ThemeProvider>
