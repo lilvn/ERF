@@ -45,12 +45,18 @@ export default function EventsPage() {
         .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     } else if (selectedPastMonth) {
       const { year, month } = selectedPastMonth;
-      return allEvents
-        .filter(event => {
-          const eventDate = new Date(event.date);
-          return eventDate.getFullYear() === year && eventDate.getMonth() === month;
-        })
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      console.log('Filtering for:', { year, month });
+      console.log('Total events:', allEvents.length);
+      
+      const filtered = allEvents.filter(event => {
+        const eventDate = new Date(event.date);
+        const matches = eventDate.getFullYear() === year && eventDate.getMonth() === month;
+        if (matches) console.log('Match:', event.title, event.date);
+        return matches;
+      });
+      
+      console.log('Filtered count:', filtered.length);
+      return filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     }
     return [];
   }, [allEvents, viewMode, selectedPastMonth]);
@@ -71,6 +77,7 @@ export default function EventsPage() {
   };
 
   const handlePastMonthSelect = (year: number, month: number) => {
+    console.log('Selected past month:', { year, month });
     setViewMode('past');
     setSelectedPastMonth({ year, month });
     setDropdownOpen(false);
@@ -141,7 +148,10 @@ export default function EventsPage() {
 
             {/* Dropdown Menu */}
             {dropdownOpen && (
-              <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50 max-h-80 overflow-y-auto">
+              <div 
+                className="absolute top-full left-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50 max-h-80 overflow-y-auto"
+                onClick={(e) => e.stopPropagation()}
+              >
                 {pastMonths.length > 0 ? (
                   pastMonths.map(({ year, month, count }) => {
                     const label = new Date(year, month).toLocaleDateString('en-US', { 
@@ -153,7 +163,10 @@ export default function EventsPage() {
                     return (
                       <button
                         key={`${year}-${month}`}
-                        onClick={() => handlePastMonthSelect(year, month)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handlePastMonthSelect(year, month);
+                        }}
                         className={`w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors flex justify-between items-center ${
                           isSelected ? 'bg-purple-50 text-purple-700' : 'text-gray-700'
                         }`}
