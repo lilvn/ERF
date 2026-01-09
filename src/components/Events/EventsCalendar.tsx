@@ -9,13 +9,21 @@ interface EventsCalendarProps {
   onEventClick: (event: SanityEvent) => void;
 }
 
-// Group events by date
+// Get local date key (avoids timezone issues)
+function getLocalDateKey(dateStr: string): string {
+  const date = new Date(dateStr);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+// Group events by local date
 function groupEventsByDate(events: SanityEvent[]): Map<string, SanityEvent[]> {
   const groups = new Map<string, SanityEvent[]>();
   
   events.forEach(event => {
-    const date = new Date(event.date);
-    const key = date.toISOString().split('T')[0]; // YYYY-MM-DD
+    const key = getLocalDateKey(event.date);
     const existing = groups.get(key) || [];
     groups.set(key, [...existing, event]);
   });
@@ -23,9 +31,9 @@ function groupEventsByDate(events: SanityEvent[]): Map<string, SanityEvent[]> {
   return groups;
 }
 
-// Format date for display
-function formatDateHeader(dateStr: string): { day: number; weekday: string; month: string } {
-  const date = new Date(dateStr);
+// Format date for display using the event's actual date
+function formatDateHeader(event: SanityEvent): { day: number; weekday: string; month: string } {
+  const date = new Date(event.date);
   return {
     day: date.getDate(),
     weekday: date.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase(),
@@ -37,10 +45,12 @@ export default function EventsCalendar({ events, onEventClick }: EventsCalendarP
   // Group events by date
   const eventsByDate = useMemo(() => {
     const grouped = groupEventsByDate(events);
-    // Sort by date
-    const sortedEntries = Array.from(grouped.entries()).sort((a, b) => 
-      new Date(a[0]).getTime() - new Date(b[0]).getTime()
-    );
+    // Sort by date using the first event's date in each group
+    const sortedEntries = Array.from(grouped.entries()).sort((a, b) => {
+      const dateA = new Date(a[1][0].date).getTime();
+      const dateB = new Date(b[1][0].date).getTime();
+      return dateA - dateB;
+    });
     return sortedEntries;
   }, [events]);
 
@@ -54,10 +64,9 @@ export default function EventsCalendar({ events, onEventClick }: EventsCalendarP
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-      {eventsByDate.map(([dateStr, dateEvents]) => (
+      {eventsByDate.map(([dateKey, dateEvents]) => (
         <DateCell
-          key={dateStr}
-          dateStr={dateStr}
+          key={dateKey}
           events={dateEvents}
           onEventClick={onEventClick}
         />
@@ -67,13 +76,13 @@ export default function EventsCalendar({ events, onEventClick }: EventsCalendarP
 }
 
 interface DateCellProps {
-  dateStr: string;
   events: SanityEvent[];
   onEventClick: (event: SanityEvent) => void;
 }
 
-function DateCell({ dateStr, events, onEventClick }: DateCellProps) {
-  const { day, weekday, month } = formatDateHeader(dateStr);
+function DateCell({ events, onEventClick }: DateCellProps) {
+  // Use first event's date for the header
+  const { day, weekday, month } = formatDateHeader(events[0]);
   
   return (
     <div className="flex flex-col border border-gray-300 bg-white overflow-hidden">
