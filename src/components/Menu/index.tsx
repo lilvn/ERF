@@ -5,16 +5,58 @@ import { Canvas } from '@react-three/fiber';
 import { Environment } from '@react-three/drei';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 import { Logo } from './Logo';
-import { MenuWheel } from './MenuWheel';
+import { MenuWheel, MenuItem, MENU_ITEMS } from './MenuWheel';
 import { useAnaglyph } from '@/context/AnaglyphContext';
 import gsap from 'gsap';
+
+// Page Indicator component that shows in top-left corner
+const PageIndicator = ({ item, onAnimationComplete }: { 
+  item: MenuItem; 
+  onAnimationComplete?: () => void;
+}) => {
+  const { getCombinedStyle } = useAnaglyph();
+  
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.5 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.5 }}
+      transition={{ 
+        duration: 0.3,
+        ease: [0.4, 0, 0.2, 1]
+      }}
+      onAnimationComplete={onAnimationComplete}
+      className="fixed pointer-events-none"
+      style={{ 
+        top: 24,
+        left: 24,
+        zIndex: 150,
+        ...getCombinedStyle('foreground'),
+      }}
+    >
+      <div className="relative w-20 h-20">
+        <Image
+          src={item.icon}
+          alt={item.name}
+          fill
+          className="object-contain"
+          unoptimized
+          priority
+        />
+      </div>
+    </motion.div>
+  );
+};
 
 export const Menu = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [spinTrigger, setSpinTrigger] = useState(0);
   const [spinDirection, setSpinDirection] = useState<'open' | 'close'>('open');
   const [targetPage, setTargetPage] = useState<string | null>(null);
+  const [pageIndicator, setPageIndicator] = useState<MenuItem | null>(null);
+  const [showIndicator, setShowIndicator] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const router = useRouter();
@@ -67,14 +109,39 @@ export const Menu = () => {
     });
   }, [isHome, isExpanded, targetPage]);
 
-  // Clear target page after navigation completes
+  // Clear target page after navigation completes and show the indicator
   useEffect(() => {
     if (targetPage && pathname === targetPage) {
       // Use timeout to avoid setState in effect body
-      const timer = setTimeout(() => setTargetPage(null), 0);
+      const timer = setTimeout(() => {
+        setTargetPage(null);
+        // Show the page indicator after menu animation completes
+        if (pageIndicator) {
+          setShowIndicator(true);
+        }
+      }, 400); // Wait for menu exit animation
       return () => clearTimeout(timer);
     }
-  }, [pathname, targetPage]);
+  }, [pathname, targetPage, pageIndicator]);
+
+  // Clear page indicator when navigating to home
+  useEffect(() => {
+    if (isHome) {
+      setPageIndicator(null);
+      setShowIndicator(false);
+    }
+  }, [isHome]);
+
+  // Set page indicator on initial load if not home
+  useEffect(() => {
+    if (!isHome && !pageIndicator) {
+      const currentItem = MENU_ITEMS.find(item => item.path === pathname);
+      if (currentItem) {
+        setPageIndicator(currentItem);
+        setShowIndicator(true);
+      }
+    }
+  }, [isHome, pathname, pageIndicator]);
 
   const handleLogoClick = () => {
     if (isExpanded) {
@@ -82,19 +149,26 @@ export const Menu = () => {
       setSpinTrigger(prev => prev + 1);
       setTargetPage('/');
       setIsExpanded(false);
+      setShowIndicator(false);
+      setPageIndicator(null);
       router.push('/');
     } else {
       setSpinDirection('open');
       setSpinTrigger(prev => prev + 1);
+      // Hide indicator when opening menu
+      setShowIndicator(false);
       setIsExpanded(true);
     }
   };
 
-  const handleMenuClose = (path?: string) => {
+  const handleMenuClose = (item?: MenuItem) => {
     setSpinDirection('close');
     setSpinTrigger(prev => prev + 1);
-    if (path) {
-      setTargetPage(path);
+    if (item) {
+      setTargetPage(item.path);
+      setPageIndicator(item);
+      // Navigate after setting state
+      router.push(item.path);
     }
     setIsExpanded(false);
   };
@@ -103,6 +177,10 @@ export const Menu = () => {
     setSpinDirection('close');
     setSpinTrigger(prev => prev + 1);
     setIsExpanded(false);
+    // Restore the page indicator if we're on a page
+    if (pageIndicator) {
+      setShowIndicator(true);
+    }
   };
 
   // Determine logo scale based on state and intent
@@ -122,6 +200,13 @@ export const Menu = () => {
 
   return (
     <div className="fixed inset-0 pointer-events-none z-[500]">
+      {/* Page Indicator - shows current page icon in top-left */}
+      <AnimatePresence>
+        {showIndicator && pageIndicator && !isExpanded && (
+          <PageIndicator item={pageIndicator} />
+        )}
+      </AnimatePresence>
+
       {/* Overlay to catch clicks and close menu */}
       <AnimatePresence>
         {isExpanded && (
