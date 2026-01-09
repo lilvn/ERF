@@ -7,81 +7,27 @@ import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { Logo } from './Logo';
-import { MenuWheel, MenuItem, MENU_ITEMS, getWheelPosition } from './MenuWheel';
+import { MenuWheel, MenuItem, MENU_ITEMS } from './MenuWheel';
 import { useAnaglyph } from '@/context/AnaglyphContext';
 import gsap from 'gsap';
 
-// Traveling Menu Item - animates from wheel position to top-left corner
-const TravelingMenuItem = ({ 
-  item, 
-  startIndex,
-  onAnimationComplete 
-}: { 
+// Page Indicator component that shows in top-left corner
+const PageIndicator = ({ item, onAnimationComplete }: { 
   item: MenuItem; 
-  startIndex: number;
-  onAnimationComplete: () => void;
+  onAnimationComplete?: () => void;
 }) => {
   const { getCombinedStyle } = useAnaglyph();
-  const { x, y } = getWheelPosition(startIndex, MENU_ITEMS.length);
-  
-  // Calculate start position (center of screen + wheel offset)
-  const startX = window.innerWidth / 2 + x - 80;
-  const startY = window.innerHeight / 2 + y - 80;
-  
-  // Target position (top-left corner)
-  const targetX = 24;
-  const targetY = 24;
   
   return (
     <motion.div
-      initial={{ 
-        x: startX, 
-        y: startY,
-        scale: 1,
-      }}
-      animate={{ 
-        x: targetX, 
-        y: targetY,
-        scale: 0.5, // Scale down from 160px to 80px
-      }}
-      transition={{ 
-        duration: 0.5,
-        ease: [0.4, 0, 0.2, 1]
-      }}
-      onAnimationComplete={onAnimationComplete}
-      className="fixed pointer-events-none"
-      style={{ 
-        zIndex: 200,
-        ...getCombinedStyle('foreground'),
-      }}
-    >
-      <div className="relative w-40 h-40">
-        <Image
-          src={item.icon}
-          alt={item.name}
-          fill
-          className="object-contain"
-          unoptimized
-          priority
-        />
-      </div>
-    </motion.div>
-  );
-};
-
-// Page Indicator component that shows in top-left corner (static)
-const PageIndicator = ({ item }: { item: MenuItem }) => {
-  const { getCombinedStyle } = useAnaglyph();
-  
-  return (
-    <motion.div
-      initial={{ opacity: 1 }}
-      animate={{ opacity: 1 }}
+      initial={{ opacity: 0, scale: 0.5 }}
+      animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.5 }}
       transition={{ 
         duration: 0.3,
         ease: [0.4, 0, 0.2, 1]
       }}
+      onAnimationComplete={onAnimationComplete}
       className="fixed pointer-events-none"
       style={{ 
         top: 24,
@@ -90,7 +36,7 @@ const PageIndicator = ({ item }: { item: MenuItem }) => {
         ...getCombinedStyle('foreground'),
       }}
     >
-      <div className="relative w-20 h-20">
+      <div className="relative w-32 h-32">
         <Image
           src={item.icon}
           alt={item.name}
@@ -111,7 +57,6 @@ export const Menu = () => {
   const [targetPage, setTargetPage] = useState<string | null>(null);
   const [pageIndicator, setPageIndicator] = useState<MenuItem | null>(null);
   const [showIndicator, setShowIndicator] = useState(false);
-  const [travelingItem, setTravelingItem] = useState<{ item: MenuItem; index: number } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const router = useRouter();
@@ -164,17 +109,20 @@ export const Menu = () => {
     });
   }, [isHome, isExpanded, targetPage]);
 
-  // Clear target page after navigation completes
+  // Clear target page after navigation completes and show the indicator
   useEffect(() => {
     if (targetPage && pathname === targetPage) {
       // Use timeout to avoid setState in effect body
       const timer = setTimeout(() => {
         setTargetPage(null);
-        // Note: showIndicator is set by handleTravelComplete when animation finishes
-      }, 100);
+        // Show the page indicator after menu animation completes
+        if (pageIndicator) {
+          setShowIndicator(true);
+        }
+      }, 400); // Wait for menu exit animation
       return () => clearTimeout(timer);
     }
-  }, [pathname, targetPage]);
+  }, [pathname, targetPage, pageIndicator]);
 
   // Clear page indicator when navigating to home
   useEffect(() => {
@@ -203,43 +151,32 @@ export const Menu = () => {
       setIsExpanded(false);
       setShowIndicator(false);
       setPageIndicator(null);
-      setTravelingItem(null);
       router.push('/');
     } else {
       setSpinDirection('open');
       setSpinTrigger(prev => prev + 1);
       // Hide indicator when opening menu
       setShowIndicator(false);
-      setTravelingItem(null);
       setIsExpanded(true);
     }
   };
 
-  const handleMenuClose = (item?: MenuItem, index?: number) => {
+  const handleMenuClose = (item?: MenuItem) => {
     setSpinDirection('close');
     setSpinTrigger(prev => prev + 1);
-    if (item && index !== undefined) {
+    if (item) {
       setTargetPage(item.path);
       setPageIndicator(item);
-      // Start the traveling animation
-      setTravelingItem({ item, index });
       // Navigate after setting state
       router.push(item.path);
     }
     setIsExpanded(false);
   };
 
-  const handleTravelComplete = () => {
-    // Traveling animation complete, show static indicator
-    setTravelingItem(null);
-    setShowIndicator(true);
-  };
-
   const handleOverlayClick = () => {
     setSpinDirection('close');
     setSpinTrigger(prev => prev + 1);
     setIsExpanded(false);
-    setTravelingItem(null);
     // Restore the page indicator if we're on a page
     if (pageIndicator) {
       setShowIndicator(true);
@@ -263,21 +200,9 @@ export const Menu = () => {
 
   return (
     <div className="fixed inset-0 pointer-events-none z-[500]">
-      {/* Traveling Menu Item - animates from wheel to top-left */}
+      {/* Page Indicator - shows current page icon in top-left */}
       <AnimatePresence>
-        {travelingItem && (
-          <TravelingMenuItem 
-            key="traveling"
-            item={travelingItem.item} 
-            startIndex={travelingItem.index}
-            onAnimationComplete={handleTravelComplete}
-          />
-        )}
-      </AnimatePresence>
-
-      {/* Page Indicator - shows current page icon in top-left (static, after travel) */}
-      <AnimatePresence>
-        {showIndicator && pageIndicator && !isExpanded && !travelingItem && (
+        {showIndicator && pageIndicator && !isExpanded && (
           <PageIndicator item={pageIndicator} />
         )}
       </AnimatePresence>
